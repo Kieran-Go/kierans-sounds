@@ -1,0 +1,26 @@
+/* Import fonts */
+@font-face {
+    font-family: 'PinyonScript';
+    src: url('../assets/fonts/PinyonScript-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ZenTokyoZoo';
+    src: url('../assets/fonts/ZenTokyoZoo-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Set the site to have a gradiant background color */
+:root{
+    background-image: linear-gradient(to right, rgb(4, 39, 92) , rgb(93, 94, 107));
+    background-size: cover;
+}
+
+/* Global body styles */
+body{
+    text-align: center;
+    color: white;
+}

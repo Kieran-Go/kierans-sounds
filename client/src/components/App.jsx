@@ -1,9 +1,9 @@
-function App() {
+import Hero from './Hero';
+
+export default function App() {
   return (
     <>
-      <p>Hello, World!</p>
+      <Hero />
     </>
   )
 }
-
-export default App
