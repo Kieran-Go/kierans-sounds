@@ -21,3 +21,43 @@
   max-width: 90px;
   user-select: none;
 }
+
+/* Grid container for all sound cards */
+.main-player__sound-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background-color: rgb(0, 0, 0, 0.5);
+  border: solid white 2px;
+  border-radius: 20px;
+  width: 75%;
+  margin: 50px auto;
+  padding: 50px;
+  gap: 50px;
+}
+
+.sound-grid__card{
+  background-color: rgb(0, 62, 143, 0.7);
+  border: solid white 3px;
+  border-radius: 20px;
+  min-height: 200px;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.custom {
+  background-color: rgba(242, 93, 1, 0.7);
+}
+
+.sound-grid__card img{
+  max-width: 70px;
+  margin: 10px 0 0;
+}
+
+.main-player__sound-grid input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  margin-top: -12px; /* Centers thumb on the track */
+  background-color: #5cd5eb;
+  height: 2rem;
+  width: 1rem;    
+ }
