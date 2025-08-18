@@ -1,0 +1,23 @@
+/* Play/pause button  */
+.main-player__play-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(2, 88, 201);
+  border: solid rgb(47, 46, 46) 3.5px;
+  border-radius: 50%;
+  width: 140px;
+  height: 140px;
+  margin: 20px auto;
+  transition: background-color 0.2s ease;
+}
+
+.main-player__play-btn:hover {
+  cursor: pointer;
+  background-color: rgb(0, 123, 255);
+}
+
+.main-player__play-btn img {
+  max-width: 90px;
+  user-select: none;
+}
