@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "../css/MusicPlayer.css";
+import nextBtn from "../assets/images/next.svg";
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
     const [activeSong, setActiveSong] = useState(null);
@@ -111,12 +112,14 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
 
     return (
         <div className="music-player">
-            <p>MUSIC PLAYER</p>
-            <p onClick={nextSong}>next</p>
-            <p onClick={prevSong}>prev</p>
-            {activeSong && (
-                <p>{activeSong.name}{activeSong.author ? ` — ${activeSong.author}` : ""}</p>
-            )}
+            <p className="music-player-head">MUSIC PLAYER</p>
+            <div>
+                <img src={nextBtn} onClick={prevSong} className="prev-btn"/>
+                {activeSong && (
+                    <p className="song-info"><span>{activeSong.name}{activeSong.author ? ` — ${activeSong.author}` : ""}</span></p>
+                )}
+                <img src={nextBtn} onClick={nextSong} className="next-btn"/>
+            </div>
             <input
                 type="range"
                 min="0"
