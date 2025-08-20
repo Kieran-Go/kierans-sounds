@@ -1,11 +1,13 @@
-import '../css/MainPlayer.css';
-import { useEffect, useRef, useState } from 'react';
-import playBtnImg from '../assets/images/play.svg';
-import pauseBtnImg from '../assets/images/pause.svg';
-import audioImg from '../assets/images/audio.svg';
+import { useEffect, useState } from 'react';
 import localData from '../../data/localData';
 import mockDb from '../../data/mockData';
 import MusicPlayer from './MusicPlayer';
+import SoundGrid from './SoundGrid';
+import getStoredSoundVolumes from '../util/getStoredSoundVolumes';
+import playBtnImg from '../assets/images/play.svg';
+import pauseBtnImg from '../assets/images/pause.svg';
+import audioImg from '../assets/images/audio.svg';
+import '../css/MainPlayer.css';
 
 export default function MainPlayer() {
     const [play, setPlay] = useState(false);
@@ -40,8 +42,9 @@ export default function MainPlayer() {
             const storedVolume = storedVolumes[sound.id];
             const volume = storedVolume !== undefined ? storedVolume : 0;
 
+            // Create new Audio object for each sound
             const audio = new Audio(sound.url);
-            audio.loop = true;
+            audio.loop = true; // Sounds must loop
             audio.volume = volume;
             return {
                 id: sound.id,
@@ -61,61 +64,10 @@ export default function MainPlayer() {
         setSongs(data.songs);
     },[])
 
-
-    // Play/Pause sounds and music player
-    useEffect(() => {
-        // Sounds
-        sounds.forEach((sound) => {
-            if (sound.audio.volume > 0) {
-                if (play && !sound.isPlaying) {
-                    sound.audio.play();
-                    sound.isPlaying = true;
-                } else if (!play && sound.isPlaying) {
-                    sound.audio.pause();
-                    sound.isPlaying = false;
-                }
-            }
-        });
-    }, [play, sounds]);
-
-    // Toggles the play state
-    const togglePlay = () => {
-        setPlay(!play);
-    }
-
-    // Handle when a sound's volume is changed by user
-    const handleSoundVolumeChange = (e, index) => {
-        const value = parseFloat(e.target.value);
-        const newSounds = sounds.map((sound, i) => {
-            if (i === index) {
-                sound.audio.volume = value; // sync with audio element
-                
-                // Play/pause based on volume
-                if (value > 0 && play) sound.audio.play();
-                else sound.audio.pause();
-
-                return { ...sound, volume: value, isPlaying: value > 0 && play };
-            }
-            return sound;
-        });
-        setSounds(newSounds);
-
-        // save sound volumes to localStorage 
-        const storedVolumes = getStoredSoundVolumes();
-        storedVolumes[newSounds[index].id] = value;
-        localStorage.setItem("soundVolumeStorage", JSON.stringify(storedVolumes));
-    }
-
-    // Function to read local storage for stored sound volumes
-    const getStoredSoundVolumes = () => {
-        const stored = localStorage.getItem("soundVolumeStorage");
-        return stored ? JSON.parse(stored) : {};
-    }
-
     return(
         <>
         {/* Render the play/pause button */}
-        <section className="main-player__play-btn" onClick={() => togglePlay()}>
+        <section className="main-player__play-btn" onClick={() => setPlay(!play)}>
             <img src={play ? pauseBtnImg : playBtnImg}/>
         </section>
 
@@ -123,23 +75,7 @@ export default function MainPlayer() {
         <MusicPlayer play={play} songs={songs}/>
   
         {/* Render the sound-grid */}
-        <section className="main-player__sound-grid">
-            {sounds.map((sound, index) => (
-                <div className={sound.isLocal ? "sound-grid__card" : "sound-grid__card custom"}
-                    key={sound.id}>
-                    <img src={sound.svg} alt={`${sound.name} icon`} />
-                    <p>{sound.name}</p>
-                    <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        value={sound.volume}
-                        onChange={(e) => handleSoundVolumeChange(e, index)}
-                    />
-                </div>
-            ))}
-        </section>
+        <SoundGrid play={play} sounds={sounds} setSounds={setSounds}/>
         </>
     )
 }
