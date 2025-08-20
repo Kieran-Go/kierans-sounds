@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "../css/MusicPlayer.css";
 
-export default function MusicPlayer({ songs, play }) {
+export default function MusicPlayer({ songs, play, masterVolume }) {
     const [activeSong, setActiveSong] = useState(null);
     const musicPlayerAudio = useRef(new Audio());
 
@@ -23,14 +23,21 @@ export default function MusicPlayer({ songs, play }) {
     useEffect(() => {
         if (!activeSong) return;
 
-        if (play && activeSong.volume > 0) {
+        if (play && activeSong.volume > 0 && masterVolume > 0) {
             activeSong.audio.play();
             activeSong.isPlaying = true;
         } else {
             activeSong.audio.pause();
             activeSong.isPlaying = false;
         }
-    }, [play, activeSong]);
+    }, [play, activeSong, masterVolume]);
+
+    // Apply master volume multiplier whenever it changes
+    useEffect(() => {
+        if (activeSong) {
+            activeSong.audio.volume = activeSong.volume * masterVolume;
+        }
+    }, [masterVolume, activeSong]);
 
     // Sets the new active song as the song param
     const setNewActiveSong = (song) => {
@@ -90,7 +97,7 @@ export default function MusicPlayer({ songs, play }) {
         if (!activeSong) return;
 
         const newAudio = activeSong.audio;
-        newAudio.volume = value;
+        newAudio.volume = value * masterVolume;
 
         setActiveSong({
             ...activeSong,

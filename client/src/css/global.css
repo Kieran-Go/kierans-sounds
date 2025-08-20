@@ -13,6 +13,13 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'Roboto';
+    src: url('../assets/fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* Set the site to have a gradiant background color */
 :root{
     background-image: linear-gradient(to right, rgb(4, 39, 92) , rgb(93, 94, 107));
@@ -20,7 +27,9 @@
 }
 
 /* Global body styles */
-body{
-    text-align: center;
+body, button{
+    font-family: 'Roboto';
+    font-weight: bold;
     color: white;
+    text-align: center;
 }

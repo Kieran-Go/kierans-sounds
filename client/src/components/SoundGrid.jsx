@@ -2,11 +2,14 @@ import { useEffect } from "react";
 import getStoredSoundVolumes from "../util/getStoredSoundVolumes";
 import '../css/SoundGrid.css';
 
-export default function SoundGrid ({ play, sounds, setSounds }) {
+export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
     // Play/Pause sounds depending on play state and sound's volume
     useEffect(() => {
         sounds.forEach((sound) => {
-            if (sound.audio.volume > 0) {
+            const effectiveVolume = sound.volume * masterVolume;
+            sound.audio.volume = effectiveVolume;
+
+            if (effectiveVolume > 0) {
                 if (play && !sound.isPlaying) {
                     sound.audio.play();
                     sound.isPlaying = true;
@@ -14,22 +17,25 @@ export default function SoundGrid ({ play, sounds, setSounds }) {
                     sound.audio.pause();
                     sound.isPlaying = false;
                 }
+            } else if (sound.isPlaying) {
+                sound.audio.pause();
+                sound.isPlaying = false;
             }
         });
-    }, [play, sounds]);
+    }, [play, sounds, masterVolume]);
 
     // Handle when a sound's volume is changed by user
     const handleSoundVolumeChange = (e, index) => {
         const value = parseFloat(e.target.value);
         const newSounds = sounds.map((sound, i) => {
             if (i === index) {
-                sound.audio.volume = value; // sync with audio element
-                
-                // Play/pause based on volume
-                if (value > 0 && play) sound.audio.play();
+                const effectiveVolume = value * masterVolume;
+                sound.audio.volume = effectiveVolume;
+
+                if (effectiveVolume > 0 && play) sound.audio.play();
                 else sound.audio.pause();
 
-                return { ...sound, volume: value, isPlaying: value > 0 && play };
+                return { ...sound, volume: value, isPlaying: effectiveVolume > 0 && play };
             }
             return sound;
         });
