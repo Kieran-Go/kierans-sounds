@@ -21,11 +21,12 @@
 }
 
 .custom {
-  background-color: rgba(242, 93, 1, 0.7);
+  border-color: aqua;
 }
 
 .sound-grid__card img{
-  max-width: 70px;
+  min-width: 60px;
+  max-width: 60px;
   margin: 10px 0 0;
 }
 

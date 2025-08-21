@@ -32,10 +32,16 @@
     width: 40px;
     height: auto;
     cursor: pointer;
+    opacity: 50%;
+    transition: opacity 0.1s;
 }
 
 .music-player .prev-btn {
     transform: scaleX(-1); /* flip horizontally */
+}
+
+.music-player .next-btn:hover, .music-player .prev-btn:hover {
+    opacity: 100%;
 }
 
 /* Song-info styling */
