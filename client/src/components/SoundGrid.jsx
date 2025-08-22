@@ -1,8 +1,11 @@
 import { useEffect } from "react";
 import getStoredSoundVolumes from "../util/getStoredSoundVolumes";
 import '../css/SoundGrid.css';
+import { useUI } from "./App";
 
 export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
+    const { hideSoundGrid, resetVolumes } = useUI(); // Get ui state
+
     // Play/Pause sounds depending on play state and sound's volume
     useEffect(() => {
         sounds.forEach((sound) => {
@@ -23,6 +26,34 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
             }
         });
     }, [play, sounds, masterVolume]);
+
+    // Reset each sound volume on resetVolumes state trigger
+    useEffect(() => {
+        const value = 0;
+
+        // Create a new array for state
+        const newSounds = sounds.map((sound) => ({
+            ...sound,
+            volume: value,
+            isPlaying: false
+        }));
+
+        setSounds(newSounds);
+
+        // Reset audio elements outside of state mapping
+        newSounds.forEach((sound) => {
+            sound.audio.volume = value;
+            sound.audio.pause();
+        });
+
+        // Save all volumes to localStorage
+        const storedVolumes = getStoredSoundVolumes();
+        newSounds.forEach((sound) => {
+            storedVolumes[sound.id] = value;
+        });
+        localStorage.setItem("soundVolumeStorage", JSON.stringify(storedVolumes));
+
+    }, [resetVolumes]);
 
     // Handle when a sound's volume is changed by user
     const handleSoundVolumeChange = (e, index) => {
@@ -48,7 +79,9 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
     }
 
     return(
-        <div className="sound-grid">
+        <>
+        {!hideSoundGrid && 
+            <div className="sound-grid">
             {sounds.map((sound, index) => (
                 <div className={sound.isLocal ? "sound-grid__card" : "sound-grid__card custom"}
                     key={sound.id}>
@@ -65,5 +98,7 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
                 </div>
             ))}
         </div>
+        }
+        </>
     );
 }

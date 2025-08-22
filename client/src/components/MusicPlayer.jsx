@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import "../css/MusicPlayer.css";
 import nextBtn from "../assets/images/next.svg";
+import { useUI } from "./App";
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
     const [activeSong, setActiveSong] = useState(null);
     const musicPlayerAudio = useRef(new Audio());
+    const { hideMusicPlayer, resetVolumes } = useUI(); // Get ui state
 
     // Initialize first song
     useEffect(() => {
@@ -39,6 +41,25 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
             activeSong.audio.volume = activeSong.volume * masterVolume;
         }
     }, [masterVolume, activeSong]);
+
+    // Reset the music player volume on resetVolumes state trigger
+    useEffect(() => {
+        if (!activeSong) return;
+
+        // Reset volume
+        const audio = activeSong.audio;
+        audio.volume = 0;
+
+        // Update state so the slider reflects it
+        setActiveSong({
+            ...activeSong,
+            audio,
+            volume: 0,
+        });
+
+        // Reset localStorage
+        localStorage.setItem("musicVolumeStorage", JSON.stringify(0));
+    },[resetVolumes])
 
     // Sets the new active song as the song param
     const setNewActiveSong = (song) => {
@@ -111,7 +132,9 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
     };
 
     return (
-        <div className="music-player">
+        <>
+        {!hideMusicPlayer && 
+            <div className="music-player">
             <p className="music-player-head">MUSIC PLAYER</p>
             <div>
                 <img src={nextBtn} onClick={prevSong} className="prev-btn"/>
@@ -129,5 +152,7 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
                 onChange={handleMusicVolumeChange}
             />
         </div>
+        }
+        </>
     );
 }
