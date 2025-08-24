@@ -28,6 +28,10 @@
     margin-bottom: 0;
 }
 
+.player-options {
+    gap: 20px;
+}
+
 .music-player .next-btn, .music-player .prev-btn {
     width: 40px;
     height: auto;
@@ -36,12 +40,26 @@
     transition: opacity 0.1s;
 }
 
+.loop-btn, .shuffle-btn {
+    width: 20px;
+    cursor: pointer;
+    opacity: 50%;
+    transition: opacity 0.1s;
+    border-radius: 12px;
+    padding: 5px;
+}
+
 .music-player .prev-btn {
     transform: scaleX(-1); /* flip horizontally */
 }
 
-.music-player .next-btn:hover, .music-player .prev-btn:hover {
+.music-player .next-btn:hover, .music-player .prev-btn:hover, .loop-btn:hover, .shuffle-btn:hover {
     opacity: 100%;
+}
+
+.active {
+    background-color: rgba(1, 100, 161, 0.75);
+    opacity: 75%;
 }
 
 /* Song-info styling */
@@ -77,4 +95,5 @@
 .music-player input[type="range"] {
     width: 100%;
     cursor: pointer;
+    margin-top: 10px;
 }

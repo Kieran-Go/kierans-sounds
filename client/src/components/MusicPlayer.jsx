@@ -1,26 +1,54 @@
 import { useEffect, useRef, useState } from "react";
 import "../css/MusicPlayer.css";
 import nextBtn from "../assets/images/next.svg";
+import loopBtn from "../assets/images/loop.svg";
+import shuffleBtn from "../assets/images/shuffle.svg";
 import { useUI } from "./App";
+import arrayShuffle from "../util/arrayShuffle";
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
     const [activeSong, setActiveSong] = useState(null);
+
+    // Initialize using local storage or set to false if not found
+    const [loopSong, setLoopSong] = useState(() => {
+        const storedState = localStorage.getItem("loopSongStorage");
+        return storedState !== null ? JSON.parse(storedState) : false;
+    });
+
+    // Initialize using local storage or set to false if not found
+    const [shuffle, setShuffle] = useState(() => {
+        const shuffleState = localStorage.getItem("shuffleStorage");
+        return shuffleState !== null ? JSON.parse(shuffleState) : false;
+    });
+
+    const [shuffleQueue, setShuffleQueue] = useState([]); // Songs in the shuffle queue
+    const [shuffleHistory, setShuffleHistory] = useState([]); // Shuffled songs already played
+
     const musicPlayerAudio = useRef(new Audio());
     const { hideMusicPlayer, resetVolumes } = useUI(); // Get ui state
 
-    // Initialize first song
+    // Initialize first active song
     useEffect(() => {
-        if (songs.length > 0) {
+        if (songs.length === 0) return;
+
+        if (shuffle) {
+            // If on shuffle, shuffle the song array and create the shuffle data
+            const shuffled = arrayShuffle(songs);
+            setShuffleQueue(shuffled.slice(1)); // Remove first song from queue
+            setShuffleHistory([shuffled[0]]); // Add it to the history
+            setNewActiveSong(shuffled[0]); // Set it as the first active song
+        } else {
+            // Set as first index in songs array when not on shuffle
             setNewActiveSong(songs[0]);
         }
     }, [songs]);
 
-    // Handle song end -> go next
+    // Handle song onended event
     useEffect(() => {
         if (activeSong) {
-            activeSong.audio.onended = () => nextSong();
+            activeSong.audio.onended = () => handleSongEnd();
         }
-    }, [activeSong]);
+    }, [activeSong, loopSong, songs]);
 
     // Play/pause current song
     useEffect(() => {
@@ -91,9 +119,30 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
         });
     };
 
+    // Handles when a song ends
+    const handleSongEnd = () => {
+        if (!activeSong || songs.length === 0) return;
+
+        // If loopSong is on, or there is only one song, restart current song instead of going to next
+        if (loopSong || songs.length < 2) {
+            activeSong.audio.currentTime = 0;
+            activeSong.audio.play();
+            return;
+        }
+
+        // Else call nextSong
+        nextSong();
+    }
+
     // Set the new active song to next in the songs array
     const nextSong = () => {
         if (!activeSong || songs.length === 0) return;
+
+        // Let nextShuffle handle logic if shuffle is true
+        if(shuffle) {
+            nextShuffle();
+            return;
+        }
 
         const currentIndex = songs.findIndex((s) => s.id === activeSong.id);
         if (currentIndex === -1) return;
@@ -106,11 +155,62 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
     const prevSong = () => {
         if (!activeSong || songs.length === 0) return;
 
+        // Let prevShuffle handle logic if shuffle is true
+        if(shuffle) {
+            prevShuffle();
+            return;
+        }
+
         const currentIndex = songs.findIndex((s) => s.id === activeSong.id);
         if (currentIndex === -1) return;
 
         const prevIndex = (currentIndex - 1 + songs.length) % songs.length; // Wrap around
         setNewActiveSong(songs[prevIndex]);
+    };
+
+    // Logic for handling switching to next song while on shuffle
+    const nextShuffle = () => {
+        if (!activeSong) return;
+
+        if (shuffleQueue.length === 0) {
+            // All songs have been played - reshuffle songs
+            const shuffled = arrayShuffle(songs);
+            const [first, ...restQueue] = shuffled;
+
+            setShuffleQueue(restQueue); // Remaining songs for the new shuffle cycle
+            setShuffleHistory([first]); // Start history with first song of new cycle
+            setNewActiveSong(first); // Play first song
+            return;
+        }
+
+        // Pick the next song from the queue
+        const [next, ...restQueue] = shuffleQueue;
+
+        setShuffleQueue(restQueue); // Remove next from queue
+        setShuffleHistory([...shuffleHistory, next]); // Add to history
+        setNewActiveSong(next); // Play it
+    };
+
+    // Logic for handling switching to prev song while on shuffle
+    const prevShuffle = () => {
+        if (!activeSong || shuffleHistory.length <= 1) return;
+
+        // Copy history and queue to avoid mutating state
+        const historyCopy = [...shuffleHistory];
+        const queueCopy = [...shuffleQueue];
+
+        // Remove current song from history
+        const current = historyCopy.pop();
+
+        // The previous song is now the last item in history
+        const previous = historyCopy[historyCopy.length - 1];
+
+        if (previous) {
+            // Put the current song back at the front of the queue
+            setShuffleQueue([current, ...queueCopy]);
+            setShuffleHistory(historyCopy);
+            setNewActiveSong(previous);
+        }
     };
 
     // Handle when user changes music player volume
@@ -131,10 +231,37 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
         localStorage.setItem("musicVolumeStorage", JSON.stringify(value));
     };
 
+    // Toggle the loopSong state
+    const toggleLoop = () => {
+        const newLoopState = !loopSong;
+        setLoopSong(newLoopState);
+
+        // Save state to local storage
+        localStorage.setItem("loopSongStorage", newLoopState);
+    }
+
+    // Toggle the shuffle state
+    const toggleShuffle = () => {
+        const newShuffleState = !shuffle;
+        setShuffle(newShuffleState);
+        localStorage.setItem("shuffleStorage", newShuffleState);
+
+        if (newShuffleState) {
+            // When shuffle is turned on, generate a shuffled list of songs
+            const remainingSongs = songs.filter(s => s.id !== activeSong?.id); // Exclude current active song
+            setShuffleQueue(arrayShuffle(remainingSongs));
+            setShuffleHistory([activeSong].filter(Boolean)); // Put current active song in shuffle history
+        } else {
+            // Turning shuffle off clears shuffle-specific data
+            setShuffleQueue([]);
+            setShuffleHistory([]);
+        }
+    };
+
     return (
         <>
         {!hideMusicPlayer && 
-            <div className="music-player">
+        <div className="music-player">
             <p className="music-player-head">MUSIC PLAYER</p>
             <div>
                 <img src={nextBtn} onClick={prevSong} className="prev-btn"/>
@@ -142,6 +269,12 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
                     <p className="song-info"><span>{activeSong.name}{activeSong.author ? ` — ${activeSong.author}` : ""}</span></p>
                 )}
                 <img src={nextBtn} onClick={nextSong} className="next-btn"/>
+            </div>
+            <div className="player-options">
+                <img className={loopSong ? "loop-btn active" : "loop-btn"} src={loopBtn} alt="Loop button"
+                 onClick={() =>toggleLoop()}/>
+                <img className={shuffle ? "shuffle-btn active" : "shuffle-btn"} src={shuffleBtn} alt="Shuffle button"
+                onClick={() => toggleShuffle()}/>
             </div>
             <input
                 type="range"
