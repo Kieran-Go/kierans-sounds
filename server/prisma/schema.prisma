@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique @db.VarChar(50)
+  password String  @db.VarChar(100)
+  sounds   Sound[]
+  songs    Song[]
+
+  @@map("users")
+}
+
+model Sound {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  name      String   @db.VarChar(15)
+  url       String
+  createdAt DateTime @default(now())
+
+  @@map("sounds")
+}
+
+model Song {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  name      String   @db.VarChar(60)
+  author    String?  @db.VarChar(60)
+  url       String
+  createdAt DateTime @default(now())
+
+  @@map("songs")
+}
