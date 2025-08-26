@@ -16,6 +16,8 @@ app.use(express.json());
 
 // Routes
 app.use('/users', routes.users);
+app.use('/sounds', routes.sounds);
+app.use('/songs', routes.songs);
 
 // Error handling middleware
 app.use(errorMiddleware);
