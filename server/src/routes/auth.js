@@ -4,6 +4,7 @@ import verifyToken from '../middleware/verifyToken.js';
 import controller from "../controllers/auth-controller.js";
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
+import validator from '../validation/users-validator.js';
 
 const router = Router();
 
@@ -27,7 +28,7 @@ router.get('/', verifyToken, async (req, res, next) => {
     }catch(err) { next(err) }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', validator.validateCreateUser, async (req, res, next) => {
     try{
         // User inputed name and password
         const { username, password } = req.body;
@@ -49,7 +50,7 @@ router.post('/login', async (req, res, next) => {
     }catch(err) { next(err) }
 });
 
-router.post('/signup', async (req, res, next) => {
+router.post('/signup', validator.validateCreateUser, async (req, res, next) => {
     try {
         // User inputed name and password
         const { username, password } = req.body;

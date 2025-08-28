@@ -1,13 +1,15 @@
 import { Router } from "express";
 import controller from "../controllers/sounds-controller.js";
 import validator from "../validation/sounds-validator.js";
+import verifyAdmin from "../middleware/verifyAdmin.js";
+import verifyToken from "../middleware/verifyToken.js";
 
 // Initialize router
 const router = Router();
 
 // ----- GET -----
-// Get sound by id
-router.get('/id/:id', validator.validateSoundId, async (req, res, next) => {
+// Get sound by id (admin only)
+router.get('/admin/id/:id', verifyAdmin, validator.validateSoundId, async (req, res, next) => {
     try{
         const id = parseInt(req.params.id, 10);
         const sound = await controller.getSoundById(id);
@@ -17,38 +19,41 @@ router.get('/id/:id', validator.validateSoundId, async (req, res, next) => {
 });
 
 // Get user's sounds by userId
-router.get('/user/:userId', validator.validateUserId, async (req, res, next) => {
+router.get('/user', verifyToken, async (req, res, next) => {
     try{
-        const userId = parseInt(req.params.userId, 10);
+        const userId = req.user.id;
         const sounds = await controller.getSoundsByUser(userId);
         res.json(sounds);
     } catch(err) { next(err) }
 });
 
 // ----- POST -----
-router.post('/', validator.validateCreateSound, async (req, res, next) => {
+router.post('/', verifyToken, validator.validateCreateSound, async (req, res, next) => {
     try{
-        const { userId, name, url } = req.body;
+        const userId = req.user.id;
+        const { name, url } = req.body;
         const sound = await controller.createSound(userId, name, url);
         res.json(sound);
     } catch(err) { next(err) }
 });
 
 // ----- PUT -----
-router.put('/:id', validator.validateEditSound, async (req, res, next) => {
+router.put('/:id', verifyToken, validator.validateEditSound, async (req, res, next) => {
     try{
         const id = parseInt(req.params.id, 10);
+        const userId = req.user.id;
         const { name, url } = req.body;
-        const sound = await controller.editSound(id, name, url);
+        const sound = await controller.editSound(id, userId, name, url);
         res.json(sound);
     } catch(err) { next(err) }
 });
 
 // ----- DELETE -----
-router.delete("/:id", validator.validateSoundId, async (req, res, next) => {
+router.delete("/:id", verifyToken, validator.validateSoundId, async (req, res, next) => {
     try{
         const id = parseInt(req.params.id, 10);
-        const sound = await controller.deleteSound(id);
+        const userId = req.user.id;
+        const sound = await controller.deleteSound(id, userId);
         res.json(sound);
     } catch(err) { next(err) }
 });

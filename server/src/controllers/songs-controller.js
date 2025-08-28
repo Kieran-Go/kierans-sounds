@@ -25,7 +25,7 @@ module.exports = {
         return song;
     },
 
-    editSong: async (id, name, author, url) => {
+    editSong: async (id, userId, name, author, url) => {
         const data = {};
         if (name) data.name = name;
         if (author) data.author = author;
@@ -36,17 +36,31 @@ module.exports = {
             throw new Error("No fields to update");
         }
 
-        const song = await prisma.song.update({
+        // Check that the user owns this song
+        const song = await prisma.song.findUnique({
+            where: { id }
+        });
+        if(!song) throw new Error("Song not found");
+        if(song.userId !== userId) throw new Error("Unauthorized");
+
+        const editedSong = await prisma.song.update({
             where: { id },
             data
         });
-        return song;
+        return editedSong;
     },
 
-    deleteSong: async (id) => {
-        const song = await prisma.song.delete({
+    deleteSong: async (id, userId) => {
+        // Check that the user owns this song
+        const song = await prisma.song.findUnique({
             where: { id }
         });
-        return song;
+        if(!song) throw new Error("Song not found");
+        if(song.userId !== userId) throw new Error("Unauthorized");
+
+        const deletedSong = await prisma.song.delete({
+            where: { id }
+        });
+        return deletedSong;
     }
 }

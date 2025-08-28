@@ -14,9 +14,6 @@ const validateUserId = [
 ];
 
 const validateCreateSound = [
-    body('userId')
-        .isInt({ gt: 0 }).withMessage('User ID must be a positive integer'),
-
     body('name')
         .trim()
         .notEmpty().withMessage('Sound name is required')

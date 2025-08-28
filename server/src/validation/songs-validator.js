@@ -14,9 +14,6 @@ const validateUserId = [
 ];
 
 const validateCreateSong = [
-    body('userId')
-        .isInt({ gt: 0 }).withMessage('User ID must be a positive integer'),
-
     body('name')
         .trim()
         .notEmpty().withMessage('Song name is required')

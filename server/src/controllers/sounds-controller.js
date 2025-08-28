@@ -23,7 +23,7 @@ module.exports = {
         return sound;
     },
 
-    editSound: async (id, name, url) => {
+    editSound: async (id, userId, name, url) => {
         const data = {};
         if (name) data.name = name;
         if (url) data.url = url;
@@ -33,17 +33,31 @@ module.exports = {
             throw new Error("No fields to update");
         }
 
-        const sound = await prisma.sound.update({
+        // Check that the user owns this sound
+        const sound = await prisma.sound.findUnique({
+            where: { id }
+        });
+        if (!sound) throw new Error("Sound not found");
+        if (sound.userId !== userId) throw new Error("Unauthorized");
+
+        const editedSound = await prisma.sound.update({
             where: { id },
             data
         });
-        return sound;
+        return editedSound;
     },
 
-    deleteSound: async (id) => {
-        const sound = await prisma.sound.delete({
+    deleteSound: async (id, userId) => {
+        // Check that the user owns this sound
+        const sound = await prisma.sound.findUnique({
             where: { id }
         });
-        return sound;
+        if (!sound) throw new Error("Sound not found");
+        if (sound.userId !== userId) throw new Error("Unauthorized");
+
+        const deletedSound = await prisma.sound.delete({
+            where: { id }
+        });
+        return deletedSound;
     }
 }
