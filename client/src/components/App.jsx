@@ -2,6 +2,7 @@ import Header from './Header';
 import Hero from './Hero';
 import MainPlayer from './MainPlayer';
 import { createContext, useContext, useState, useEffect } from "react";
+import { AuthContext } from './AuthContext';
 
 // Create a new context object
 const UIContext = createContext();
@@ -12,6 +13,9 @@ export function useUI() {
 }
 
 export default function App() {
+  // Get user and authLoading context
+  const { authLoading } = useContext(AuthContext);
+
   // Set hideMusicPlayer using local storage or default to false if not found
   const [hideMusicPlayer, setHideMusicPlayer] = useState(() => {
     const stored = localStorage.getItem("hideMusicPlayer");
@@ -36,6 +40,12 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("hideSoundGrid", JSON.stringify(hideSoundGrid));
   }, [hideSoundGrid]);
+
+  // Render loading component when loading
+  if(authLoading) {
+    // Replace with a loading component later
+    return <>Loading...</>
+  }
 
   return (
     <>

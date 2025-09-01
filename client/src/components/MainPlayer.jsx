@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import localData from '../../data/localData';
 import mockDb from '../../data/mockData';
 import MusicPlayer from './MusicPlayer';
@@ -7,6 +7,7 @@ import getStoredSoundVolumes from '../util/getStoredSoundVolumes';
 import playBtnImg from '../assets/images/play.svg';
 import pauseBtnImg from '../assets/images/pause.svg';
 import audioImg from '../assets/images/audio.svg';
+import { AuthContext } from './AuthContext';
 import '../css/MainPlayer.css';
 
 export default function MainPlayer() {
@@ -15,8 +16,28 @@ export default function MainPlayer() {
     const [sounds, setSounds] = useState([]);
     const [songs, setSongs] = useState([]);
 
-    // Fetch user added data
-    const data = mockDb; // Use mock data for now
+    // Get user context
+    const { user } = useContext(AuthContext);
+
+    let data = {}; // Default to empty object for data
+    // Fetch user added data if logged in
+    if (user) {
+        // Check if user added data is in local storage first
+        const storedUserData = localStorage.getItem("userData");
+        if (storedUserData) {
+            try {
+                data = JSON.parse(storedUserData);
+            } catch (err) {
+                console.error("Failed to parse userData from localStorage:", err);
+                data = mockDb; // Fallback to fetching data from db
+                localStorage.setItem("userData", JSON.stringify(mockDb));
+            }
+        } else {
+            // No local data, so fetch from db
+            data = mockDb;
+            localStorage.setItem("userData", JSON.stringify(mockDb));
+        }
+    }
 
     // On first mount
     useEffect(() => {
@@ -42,7 +63,7 @@ export default function MainPlayer() {
         });
 
         // Format fetched sound data in the same way as local sounds
-        const userSounds = data.sounds.map(sound => {
+        const userSounds = data.sounds?.map(sound => {
             // Get volume data from local storage- or default to 0 if none
             const storedVolume = storedVolumes[sound.id];
             const volume = storedVolume !== undefined ? storedVolume : 0;
@@ -60,14 +81,14 @@ export default function MainPlayer() {
                 svg: audioImg, // Use default img for custom sounds
                 volume: volume,
             };
-        });
+        }) || [];
 
         // Set the sounds array using user sounds and local sounds
         setSounds([...userSounds, ...localSounds]);
 
         // Set the songs array using the fetched data - no need to re-format here
-        setSongs(data.songs);
-    },[]);
+        setSongs(data?.songs || []);
+    },[user]);
 
     const handleMasterVolumeChange = (e) => {
         // Set new master volume with new input value
@@ -82,7 +103,7 @@ export default function MainPlayer() {
         if(masterVolume > 0) setMasterVolume(0);
         else {
             const storedMaster = localStorage.getItem("masterVolumeStorage");
-            if (storedMaster !== null) setMasterVolume(storedMaster);
+            if (storedMaster !== null) setMasterVolume(parseFloat(storedMaster));
             else setMasterVolume(1);
         }
     }

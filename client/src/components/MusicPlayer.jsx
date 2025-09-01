@@ -265,9 +265,11 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
             <p className="music-player-head">MUSIC PLAYER</p>
             <div>
                 <img src={nextBtn} onClick={prevSong} className="prev-btn"/>
-                {activeSong && (
+                {songs.length > 0 && activeSong ? 
                     <p className="song-info"><span>{activeSong.name}{activeSong.author ? ` — ${activeSong.author}` : ""}</span></p>
-                )}
+                    :
+                    <p className="song-info"><span>No songs in the playlist — Log in to add songs</span></p>
+                }
                 <img src={nextBtn} onClick={nextSong} className="next-btn"/>
             </div>
             <div className="player-options">
