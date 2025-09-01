@@ -1,12 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import "../css/MusicPlayer.css";
 import nextBtn from "../assets/images/next.svg";
 import loopBtn from "../assets/images/loop.svg";
 import shuffleBtn from "../assets/images/shuffle.svg";
 import { useUI } from "./App";
 import arrayShuffle from "../util/arrayShuffle";
+import addImg from '../assets/images/add.svg';
+import editImg from '../assets/images/edit.svg';
+import { AuthContext } from "./AuthContext";
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
+    const { user } = useContext(AuthContext);
+
     const [activeSong, setActiveSong] = useState(null);
 
     // Initialize using local storage or set to false if not found
@@ -262,6 +267,12 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
         <>
         {!hideMusicPlayer && 
         <div className="music-player">
+            {user && 
+            <div className="buttons-container">
+                <img src={addImg} />
+                <img src={editImg} />
+            </div>}
+            
             <p className="music-player-head">MUSIC PLAYER</p>
             <div>
                 <img src={nextBtn} onClick={prevSong} className="prev-btn"/>

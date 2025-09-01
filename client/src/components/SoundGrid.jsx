@@ -1,10 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useContext, useState } from "react";
 import getStoredSoundVolumes from "../util/getStoredSoundVolumes";
 import '../css/SoundGrid.css';
+import addImg from '../assets/images/add.svg';
+import editImg from '../assets/images/edit.svg';
 import { useUI } from "./App";
+import { AuthContext } from "./AuthContext";
 
 export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
+    const { user } = useContext(AuthContext);
     const { hideSoundGrid, resetVolumes } = useUI(); // Get ui state
+    const [ showForm, setShowForm ] = useState(false);
 
     // Play/Pause sounds depending on play state and sound's volume
     useEffect(() => {
@@ -82,14 +87,26 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
         localStorage.setItem("soundVolumeStorage", JSON.stringify(storedVolumes));
     }
 
+    // Open the edit form for a sound
+    const handleSoundEdit = (soundId) => {
+        
+    }
+
     return(
         <>
         {!hideSoundGrid && 
+            <div className="sound-grid-container">
+            {user && <img className="add-btn" src={addImg} alt="Button: Add new sound"
+                onClick={() => setShowForm(true)}/>}
+
             <div className="sound-grid">
-            {sounds.map((sound, index) => (
+                {sounds.map((sound, index) => (
                 <div className={sound.isLocal ? "sound-grid__card" : "sound-grid__card custom"}
                     key={sound.id}>
-                    <img src={sound.svg} alt={`${sound.name} icon`} />
+                    {!sound.isLocal && <img className="edit-btn" src={editImg} alt="Button: Edit sound"
+                        onClick={() => handleSoundEdit(sound.id)}/>}
+
+                    <img className="sound-icon" src={sound.svg} alt={`${sound.name} icon`} />
                     <p>{sound.name}</p>
                     <input
                         type="range"
@@ -101,8 +118,11 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
                     />
                 </div>
             ))}
+            </div>
         </div>
         }
+
+        
         </>
     );
 }

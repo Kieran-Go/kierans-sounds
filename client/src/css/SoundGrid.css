@@ -1,13 +1,31 @@
 /* Grid container for all sound cards */
-.sound-grid{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.sound-grid-container {
   background-color: rgb(0, 0, 0, 0.5);
   border: solid white 2px;
   border-radius: 20px;
   width: 75%;
   margin: 50px auto;
   padding: 50px;
+  position: relative;
+}
+
+.sound-grid-container .add-btn {
+  max-width: 30px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin-bottom: 0;
+  opacity: 50%;
+  transition: opacity 0.1s ease-in;
+}
+.sound-grid-container .add-btn:hover {
+  opacity: 100%;
+  cursor: pointer;
+}
+
+.sound-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 50px;
 }
 
@@ -18,13 +36,28 @@
   min-height: 200px;
   color: white;
   font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+}
+
+.sound-grid__card .edit-btn {
+  max-width: 20px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin-bottom: 0;
+  opacity: 50%;
+  transition: opacity 0.1s ease-in;
+}
+.sound-grid__card .edit-btn:hover {
+  opacity: 100%;
+  cursor: pointer;
 }
 
 .custom {
   border-color: aqua;
 }
 
-.sound-grid__card img{
+.sound-icon{
   min-width: 60px;
   max-width: 60px;
   margin: 10px 0 0;

@@ -11,11 +11,30 @@
     align-items: center;
     font-family: Arial, sans-serif;
     margin-bottom: -20px;
+    position: relative;
 }
 
 .music-player-head {
     margin-top: 5px;
-    margin-bottom: 0;
+    margin-bottom: 10px;
+}
+
+.music-player .buttons-container {
+    display: flex;
+    gap: 20px;
+    position: absolute;
+    right: -240px;
+    top: 7px;
+}
+
+.music-player .buttons-container img{
+    max-width: 22px;
+    opacity: 50%;
+    transition: opacity ease-in 0.1s;
+}
+.music-player .buttons-container img:hover {
+    cursor: pointer;
+    opacity: 100%;
 }
 
 /* Container for the song-info and next/prev buttons */
@@ -95,5 +114,6 @@
 .music-player input[type="range"] {
     width: 100%;
     cursor: pointer;
-    margin-top: 10px;
+    /* margin-top: 10px; */
+    margin-bottom: 5px;
 }
