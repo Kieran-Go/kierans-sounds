@@ -37,13 +37,13 @@ router.post('/login', validator.validateCreateUser, async (req, res, next) => {
         const user = await controller.getLoginRequest(username, password);
         
         // Verify user
-        if(!user) return res.status(401).json({ message: "Incorrect username or password" });
+        if(!user) return res.status(401).json({ error: "Incorrect username or password" });
         
         // Payload to encode in the JWT
         const payload = { id: user.id };
 
         // Sign the JWT
-        const token = jwt.sign(payload, process.env.JWT_SECRET);
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
 
         // Send token and user as json. Omit password and other sensitive data
         res.json({ token, user: { id: user.id, username: user.username } });
@@ -62,7 +62,7 @@ router.post('/signup', validator.validateCreateUser, async (req, res, next) => {
         const payload = { id: user.id };
 
         // Sign the JWT
-        const token = jwt.sign(payload, process.env.JWT_SECRET);
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
 
         // Send token and user as json. Omit password and other sensitive data
         res.json({ token, user: { id: user.id, username: user.username } });

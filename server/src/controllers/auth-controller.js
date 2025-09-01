@@ -21,6 +21,12 @@ module.exports = {
     },
 
     signUpUser: async (username, password) => {
+        // Check that a user with this username doesn't already exist
+        const existingUser = await prisma.user.findUnique({
+            where: { username }
+        });
+        if(existingUser) throw new Error("A user with this name already exists");
+
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, SALT);
 
