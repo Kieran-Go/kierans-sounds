@@ -1,6 +1,6 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import localData from '../../data/localData';
-import mockDb from '../../data/mockData';
+import useFetchData from '../hooks/useFetchData';
 import MusicPlayer from './MusicPlayer';
 import SoundGrid from './SoundGrid';
 import getStoredSoundVolumes from '../util/getStoredSoundVolumes';
@@ -11,84 +11,79 @@ import { AuthContext } from './AuthContext';
 import '../css/MainPlayer.css';
 
 export default function MainPlayer() {
+    // Get user context
+    const { user } = useContext(AuthContext);
+
+    // Initialize states
     const [play, setPlay] = useState(false);
     const [masterVolume, setMasterVolume] = useState(1); // Default to full volume
     const [sounds, setSounds] = useState([]);
     const [songs, setSongs] = useState([]);
 
-    // Get user context
-    const { user } = useContext(AuthContext);
+    // Check if user added-data is in local storage
+    const storedUserData = localStorage.getItem("userData");
+    const parsedStoredData = storedUserData ? JSON.parse(storedUserData) : null;
 
-    let data = {}; // Default to empty object for data
-    // Fetch user added data if logged in
-    if (user) {
-        // Check if user added data is in local storage first
-        const storedUserData = localStorage.getItem("userData");
-        if (storedUserData) {
-            try {
-                data = JSON.parse(storedUserData);
-            } catch (err) {
-                console.error("Failed to parse userData from localStorage:", err);
-                data = mockDb; // Fallback to fetching data from db
-                localStorage.setItem("userData", JSON.stringify(mockDb));
-            }
-        } else {
-            // No local data, so fetch from db
-            data = mockDb;
-            localStorage.setItem("userData", JSON.stringify(mockDb));
-        }
-    }
+    // Only fetch if logged in
+    const serverOrigin = import.meta.env.VITE_SERVER_ORIGIN;
+    const { data, loading, error } = useFetchData(
+        user && !parsedStoredData ? `${serverOrigin}/users` : null
+    );
 
-    // On first mount
+    // Prefer cached data, fallback to fresh fetch
+    const userData = useMemo(
+        () => data || parsedStoredData || null,
+        [data, parsedStoredData]
+    );
+
     useEffect(() => {
         // Set document title
         document.title = "Kieran's Sounds";
 
-        // Set master volume using local storage if exists
+        // Set master volume if stored
         const storedMaster = localStorage.getItem("masterVolumeStorage");
-        if(storedMaster !== null) setMasterVolume(parseFloat(storedMaster));
+        if (storedMaster !== null) setMasterVolume(parseFloat(storedMaster));
+    },[]);
 
-        // Get stored sound volumes
-        const storedVolumes = getStoredSoundVolumes();
+    useEffect(() => {
+        const initSounds = async () => {
+            // Get stored sound volumes from storage
+            const storedVolumes = getStoredSoundVolumes();
 
-        // Clone local sounds and make sure they loop
-        const localSounds = localData.map(sound => {
-            // Get volume data from local storage - or default to 0 if none
-            const storedVolume = storedVolumes[sound.id];
-            const volume = storedVolume !== undefined ? storedVolume : 0;
+            // format local sounds
+            const localSoundsFormatted = localData.map(sound => {
+                const volume = storedVolumes[sound.id] ?? 0;
+                sound.audio.loop = true;
+                sound.audio.volume = volume;
+                return { ...sound, isPlaying: false, volume };
+            });
 
-            sound.audio.loop = true;
-            sound.audio.volume = volume;
-            return { ...sound, isPlaying: false, volume };
-        });
+            //format user sounds
+            const userSoundsFormatted = userData?.sounds?.map(sound => {
+                const volume = storedVolumes[sound.id] ?? 0;
+                const audio = new Audio(sound.url);
+                audio.loop = true;
+                audio.volume = volume;
+                return {
+                    id: sound.id,
+                    name: sound.name,
+                    audio,
+                    isPlaying: false,
+                    isLocal: false,
+                    svg: audioImg,
+                    volume,
+                };
+            }) || [];
 
-        // Format fetched sound data in the same way as local sounds
-        const userSounds = data.sounds?.map(sound => {
-            // Get volume data from local storage- or default to 0 if none
-            const storedVolume = storedVolumes[sound.id];
-            const volume = storedVolume !== undefined ? storedVolume : 0;
+            // Combine formatted sounds
+            const combinedSounds = [...userSoundsFormatted, ...localSoundsFormatted];
 
-            // Create new Audio object for each sound
-            const audio = new Audio(sound.url);
-            audio.loop = true; // Sounds must loop
-            audio.volume = volume;
-            return {
-                id: sound.id,
-                name: sound.name,
-                audio: audio,
-                isPlaying: false,
-                isLocal: false,
-                svg: audioImg, // Use default img for custom sounds
-                volume: volume,
-            };
-        }) || [];
-
-        // Set the sounds array using user sounds and local sounds
-        setSounds([...userSounds, ...localSounds]);
-
-        // Set the songs array using the fetched data - no need to re-format here
-        setSongs(data?.songs || []);
-    },[user]);
+            // update states
+            setSounds(combinedSounds);
+            setSongs(userData?.songs || []);
+        };
+        initSounds();
+    }, [loading]);
 
     const handleMasterVolumeChange = (e) => {
         // Set new master volume with new input value
@@ -107,6 +102,9 @@ export default function MainPlayer() {
             else setMasterVolume(1);
         }
     }
+
+    if (loading) return <>Loading...</>;
+    if(error) throw error;
 
     return(
         <>

@@ -29,6 +29,10 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
 
     // Reset each sound volume on resetVolumes state trigger
     useEffect(() => {
+        // Prevents volumes from resetting on page-load
+        if(resetVolumes === 0) return;
+
+        // Value to reset volumes to
         const value = 0;
 
         // Create a new array for state
