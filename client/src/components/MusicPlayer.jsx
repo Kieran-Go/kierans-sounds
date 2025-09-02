@@ -8,11 +8,13 @@ import arrayShuffle from "../util/arrayShuffle";
 import addImg from '../assets/images/add.svg';
 import editImg from '../assets/images/edit.svg';
 import { AuthContext } from "./AuthContext";
+import NewForm from "./NewForm";
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
     const { user } = useContext(AuthContext);
 
     const [activeSong, setActiveSong] = useState(null);
+    const [showNewForm, setShowNewForm] = useState(false);
 
     // Initialize using local storage or set to false if not found
     const [loopSong, setLoopSong] = useState(() => {
@@ -269,10 +271,10 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
         <div className="music-player">
             {user && 
             <div className="buttons-container">
-                <img src={addImg} />
+                <img src={addImg} onClick={() => setShowNewForm(true)} />
                 <img src={editImg} />
             </div>}
-            
+
             <p className="music-player-head">MUSIC PLAYER</p>
             <div>
                 <img src={nextBtn} onClick={prevSong} className="prev-btn"/>
@@ -299,6 +301,8 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
             />
         </div>
         }
+
+        {showNewForm && <NewForm setShowNewForm={setShowNewForm}/>}
         </>
     );
 }

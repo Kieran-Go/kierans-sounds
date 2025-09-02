@@ -5,11 +5,12 @@ import addImg from '../assets/images/add.svg';
 import editImg from '../assets/images/edit.svg';
 import { useUI } from "./App";
 import { AuthContext } from "./AuthContext";
+import NewForm from "./NewForm";
 
 export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
     const { user } = useContext(AuthContext);
     const { hideSoundGrid, resetVolumes } = useUI(); // Get ui state
-    const [ showForm, setShowForm ] = useState(false);
+    const [ showNewForm, setShowNewForm ] = useState(false);
 
     // Play/Pause sounds depending on play state and sound's volume
     useEffect(() => {
@@ -89,7 +90,7 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
 
     // Open the edit form for a sound
     const handleSoundEdit = (soundId) => {
-        
+
     }
 
     return(
@@ -97,7 +98,7 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
         {!hideSoundGrid && 
             <div className="sound-grid-container">
             {user && <img className="add-btn" src={addImg} alt="Button: Add new sound"
-                onClick={() => setShowForm(true)}/>}
+                onClick={() => setShowNewForm(true)}/>}
 
             <div className="sound-grid">
                 {sounds.map((sound, index) => (
@@ -121,8 +122,7 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
             </div>
         </div>
         }
-
-        
+        {showNewForm && <NewForm isSong={false} setShowNewForm={setShowNewForm}/>}
         </>
     );
 }
