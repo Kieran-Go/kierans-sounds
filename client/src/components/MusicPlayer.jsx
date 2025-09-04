@@ -34,6 +34,10 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
     const musicPlayerAudio = useRef(new Audio());
     const { hideMusicPlayer, resetVolumes } = useUI(); // Get ui state
 
+    const emptyPlaylistMessage = user ? 
+        "Music player is empty... add some songs!" :
+        "Must be logged in to use music player...";
+
     // Initialize first active song
     useEffect(() => {
         if (songs.length === 0) return;
@@ -281,7 +285,7 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
                 {songs.length > 0 && activeSong ? 
                     <p className="song-info"><span>{activeSong.name}{activeSong.author ? ` — ${activeSong.author}` : ""}</span></p>
                     :
-                    <p className="song-info"><span>No songs in the playlist — Log in to add songs</span></p>
+                    <p className="song-info">{emptyPlaylistMessage}</p>
                 }
                 <img src={nextBtn} onClick={nextSong} className="next-btn"/>
             </div>
