@@ -68,44 +68,46 @@ export default function MainPlayer() {
     }, [data]);
 
     useEffect(() => {
-        const initSounds = async () => {
-            // Get stored sound volumes from storage
-            const storedVolumes = getStoredSoundVolumes();
+        // Clean up old audio
+        [...sounds, ...songs].forEach(s => {
+            if (s.audio) {
+                s.audio.pause();
+                s.audio.src = '';
+            }
+        });
 
-            // format local sounds
-            const localSoundsFormatted = localData.map(sound => {
-                const volume = storedVolumes[sound.id] ?? 0;
-                sound.audio.loop = true;
-                sound.audio.volume = volume;
-                return { ...sound, isPlaying: false, volume };
-            });
+        // Always initialize local sounds
+        const localSounds = initializeAudio(localData, true);
 
-            //format user sounds
-            const userSoundsFormatted = storedData?.sounds?.map(sound => {
-                const volume = storedVolumes[sound.id] ?? 0;
-                const audio = new Audio(sound.url);
-                audio.loop = true;
-                audio.volume = volume;
-                return {
-                    id: sound.id,
-                    name: sound.name,
-                    audio,
-                    isPlaying: false,
-                    isLocal: false,
-                    svg: audioImg,
-                    volume,
-                };
-            }) || [];
+        // Initialize user sounds only if available
+        const userSounds = storedData?.sounds ? initializeAudio(storedData.sounds, false) : [];
 
-            // Combine formatted sounds
-            const combinedSounds = [...userSoundsFormatted, ...localSoundsFormatted];
+        // Initialize songs only if available
+        const userSongs = storedData?.songs ? initializeAudio(storedData.songs, false) : [];
 
-            // update states
-            setSounds(combinedSounds);
-            setSongs(storedData?.songs || []);
-        };
-        initSounds();
-    }, [loading, storedData]);
+        setSounds([...userSounds, ...localSounds]);
+        setSongs(userSongs);
+    }, [storedData]);
+
+    const initializeAudio = (items, isLocal = false) => {
+        const storedVolumes = getStoredSoundVolumes();
+
+        return items.map(item => {
+            const audio = new Audio(item.url);
+            audio.loop = true;
+            const volume = storedVolumes[item.id] ?? 0;
+            audio.volume = volume;
+
+            return {
+                ...item,
+                audio,
+                isPlaying: false,
+                isLocal,
+                svg: isLocal ? item.svg : audioImg,
+                volume,
+            };
+        });
+    };
 
     const handleMasterVolumeChange = (e) => {
         // Set new master volume with new input value

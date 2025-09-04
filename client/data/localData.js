@@ -7,7 +7,7 @@ const localSounds = [
     {
         id: "local-1",
         name: "RAIN",
-        audio: new Audio("https://res.cloudinary.com/de7vulkpy/video/upload/v1755486656/rain_ptogum.mp3"),
+        url: "https://res.cloudinary.com/de7vulkpy/video/upload/v1755486656/rain_ptogum.mp3",
         svg: rainSvg,
         volume: 0,
         isPlaying: false,
@@ -16,7 +16,7 @@ const localSounds = [
     {
         id: "local-2",
         name: "WAVES",
-        audio: new Audio("https://res.cloudinary.com/de7vulkpy/video/upload/v1755486693/waves_c5abqs.mp3"),
+        url: "https://res.cloudinary.com/de7vulkpy/video/upload/v1755486693/waves_c5abqs.mp3",
         svg: wavesSvg,
         volume: 0,
         isPlaying: false,
@@ -25,7 +25,7 @@ const localSounds = [
     {
         id: "local-3",
         name: "BIRDS",
-        audio: new Audio("https://res.cloudinary.com/de7vulkpy/video/upload/v1755486726/birds_s8iu2p.mp3"),
+        url: "https://res.cloudinary.com/de7vulkpy/video/upload/v1755486726/birds_s8iu2p.mp3",
         svg: birdsSvg,
         volume: 0,
         isPlaying: false,
