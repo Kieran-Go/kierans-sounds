@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import '../css/Form.css';
 import closeImg from '../assets/images/close.svg';
+import { storedDataContext } from './MainPlayer';
 
 export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }) {
     // Input states
@@ -11,6 +12,9 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
     const [nameErr, setNameErr] = useState(null);
     const [urlErr, setUrlErr] = useState(null);
     const [serverErr, setServerErr] = useState(null);
+
+    // Stored data context
+    const { storedData, setStoredData } = useContext(storedDataContext);
 
     const closeForm = () => {
         setSoundToEdit(null);
@@ -45,10 +49,28 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
 
         const data = await res.json();
 
-        // If response is valid, remove stale storage data and reload page
+        // If response is valid, update storage to match updated data
         if(res.ok) {
-            localStorage.removeItem('userData');
-            // window.location.reload();
+            if (storedData && storedData.sounds) {
+                // Build updated data
+                const updatedData = {
+                    ...storedData,
+                    sounds: storedData.sounds.map(s =>
+                        s.id === sound.id ? { ...s, name, url } : s
+                    ),
+                };
+
+                // Update both localStorage and context
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
+
+                // Close the form
+                closeForm();
+            }
+            else {
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
+            }
         }
         else {
             // Else display the server-side error
@@ -57,7 +79,6 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
     }
 
     return(
-        
         <div className='form-overlay'>
             <form className='form' onSubmit={handleSubmit}>
                 <h3>EDIT SOUND</h3>
