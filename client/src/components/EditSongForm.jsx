@@ -9,6 +9,7 @@ export default function EditSongForm({ songs, setShowEditForm }) {
     const [name, setName] = useState('');
     const [author, setAuthor] = useState('');
     const [url, setUrl] = useState('');
+    const [editMessage, setEditMessage] = useState(null);
 
     // Error message states
     const [nameErr, setNameErr] = useState(null);
@@ -30,14 +31,118 @@ export default function EditSongForm({ songs, setShowEditForm }) {
         setName(songToEdit.name);
         setAuthor(songToEdit.author);
         setUrl(songToEdit.url);
+        setEditMessage(null);
+        setNameErr(null);
+        setUrlErr(null);
     },[songToEdit]);
 
     async function handleSubmit(e) {
         e.preventDefault();
+
+        // Reset server error message
+        setServerErr(null);
+
+        // Return if no token
+        const token = localStorage.getItem('token');
+        if(!token) {
+            setServerErr("Not logged in");
+            return;
+        }
+
+        // Build body
+        const body = { name: name, author: author ? author : null, url: url };
+
+        // Get endpoint
+        const endpoint = `${origin}/songs/${songToEdit.id}`;
+
+        // PUT to backend
+        const res = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+
+        // If response is valid, update storage to match updated data
+        if(res.ok) {
+            if(storedData && storedData.songs) {
+                // Build updated data
+                const updatedData = {
+                    ...storedData,
+                    songs: storedData.songs.map(s => 
+                        s.id === songToEdit.id 
+                        ? { id: s.id, name, author, url }
+                        : { id: s.id, name: s.name, author: s.author, url: s.url }
+                    )
+                };
+                // Update both localStorage and context
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
+
+                // Show confirmation to user
+                setEditMessage(`${songToEdit.name} edited successfully!`)
+            }
+             else {
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
+            }
+        }
+        else {
+            // Else display the server-side error
+            setServerErr(data.error || data.message || "Failed to edit");
+        }
     }
 
     async function deleteSound(e) {
         e.preventDefault();
+
+        const confirmDelete = window.confirm("Are you sure you want to delete this song?");
+        if (!confirmDelete) return;
+
+        // Get token
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setServerErr("Not logged in");
+            return;
+        }
+
+        // Get endpoint
+        const endpoint = `${origin}/songs/${songToEdit.id}`;
+
+        // DELETE song
+        const res = await fetch(endpoint, { 
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        // Get deleted sound data from response
+        const data = await res.json();
+
+        // If response is valid, update storage to match updated data
+        if(res.ok) {
+            if (storedData && storedData.songs) {
+                // Find deleted data and remove it from local storage
+                const updatedData = {
+                    ...storedData,
+                    songs: storedData.songs.filter(s => s.id !== songToEdit.id)
+                };
+
+                // Update both localStorage and context
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
+
+                setEditMessage(`${songToEdit.name} deleted successfully`)
+            }
+            else {
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
+            }
+        }
+        else {
+            // Else display the server-side error
+            setServerErr(data.error || data.message || "Failed to delete");
+        }
     }
 
     return(
@@ -114,6 +219,8 @@ export default function EditSongForm({ songs, setShowEditForm }) {
                             setUrlErr(null);
                         }}
                     />
+
+                    {editMessage && <p className='edit-msg'>{editMessage}</p>}
 
                     {serverErr && <p className='input-error'>* {serverErr}</p>}
                     <button className='submit-btn' type="submit">SUBMIT</button>

@@ -31,6 +31,16 @@ export default function Header() {
     const signupBtnRef = useRef(null);
     const optionsBtnRef = useRef(null);
 
+    // Lights on/off sfx refs
+    const lightOnSound = useRef(new Audio(lightOn));
+    const lightOffSound = useRef(new Audio(lightOff));
+
+    useEffect(() => {
+        // Preload sfx
+        lightOnSound.current.load();
+        lightOffSound.current.load();
+    }, []);
+
     // Custom hook that closes a popup when clicking outside of it
     const useClickOutside = (ref, btnRef, onClickOutside, active = true) => {
         useEffect(() => {
@@ -62,11 +72,13 @@ export default function Header() {
     useClickOutside(optionsRef, optionsBtnRef, () => setShowOptions(false), showOptions);
 
     // Night mode effect
-    useEffect(() => {
-        document.body.style.overflow = nightMode ? "hidden" : "";
-        const audio = new Audio(nightMode ? lightOff : lightOn);
+    const toggleNightMode = (enabled) => {
+        setNightMode(enabled);
+
+        const audio = enabled ? lightOffSound.current : lightOnSound.current;
+        audio.currentTime = 0;
         audio.play();
-    }, [nightMode]);
+    };
 
     const handleLogout = () => {
         // Remove token and user data from storage
@@ -86,7 +98,7 @@ export default function Header() {
                             src={moonImg}
                             className="moon-btn"
                             alt="Toggle night mode"
-                            onClick={() => setNightMode(false)}
+                            onClick={() => toggleNightMode(false)}
                         />
                     </section>
                 </div>
@@ -110,7 +122,7 @@ export default function Header() {
                         src={sunImg}
                         className="sun-btn"
                         alt="Toggle night mode"
-                        onClick={() => setNightMode(true)}
+                        onClick={() => toggleNightMode(true)}
                     />
                 </section>
             )}

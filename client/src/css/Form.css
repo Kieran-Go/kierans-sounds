@@ -153,6 +153,12 @@
   cursor: pointer;
 }
 
+.form .edit-msg {
+  font-size: 0.85rem;
+  color: #f2ff00;
+  text-align: center;
+}
+
 /* Animations */
 @keyframes fadeIn {
   to {
