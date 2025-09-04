@@ -16,6 +16,8 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
     // Stored data context
     const { storedData, setStoredData } = useContext(storedDataContext);
 
+    const origin = import.meta.env.VITE_SERVER_ORIGIN;
+
     const closeForm = () => {
         setSoundToEdit(null);
         setShowEditForm(false);
@@ -38,8 +40,8 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
         const body = { name: name, url: url };
 
         // Get endpoint
-        const endpoint = `${import.meta.env.VITE_SERVER_ORIGIN}/sounds/${sound.id}`;
-        console.log(endpoint);
+        const endpoint = `${origin}/sounds/${sound.id}`;
+
         // PUT to backend
         const res = await fetch(endpoint, {
             method: 'PUT',
@@ -74,7 +76,59 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
         }
         else {
             // Else display the server-side error
-            setServerErr(data.error || data.message || "Failed to add");
+            setServerErr(data.error || data.message || "Failed to edit");
+        }
+    }
+
+    async function deleteSound(e) {
+        e.preventDefault();
+        // Confirm deletion
+        const confirmDelete = window.confirm("Are you sure you want to delete this sound?");
+        if (!confirmDelete) return;
+
+        // Get token
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setServerErr("Not logged in");
+            return;
+        }
+
+        // Get endpoint
+        const endpoint = `${origin}/sounds/${sound.id}`;
+
+        // DELETE sound
+        const res = await fetch(endpoint, { 
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        // Get deleted sound data from response
+        const data = await res.json();
+
+        // If response is valid, update storage to match updated data
+        if(res.ok) {
+            if (storedData && storedData.sounds) {
+                // Find deleted data and remove it from local storage
+                const updatedData = {
+                    ...storedData,
+                    sounds: storedData.sounds.filter(s => s.id !== sound.id)
+                };
+
+                // Update both localStorage and context
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
+
+                // Close the form
+                closeForm();
+            }
+            else {
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
+            }
+        }
+        else {
+            // Else display the server-side error
+            setServerErr(data.error || data.message || "Failed to delete");
         }
     }
 
@@ -126,7 +180,8 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
                 />
 
                 {serverErr && <p className='input-error'>* {serverErr}</p>}
-                <button type="submit">Submit</button>
+                <button className='submit-btn' type="submit">SUBMIT</button>
+                <button className='delete-btn' type='button' onClick={(e)=> deleteSound(e)}>DELETE</button>
             </form>
         </div>
     )

@@ -62,8 +62,8 @@
   font-size: 0.95rem;
 }
 
-/* Submit button */
-.form button {
+/* buttons */
+.form .submit-btn, .form .delete-btn {
   display: block;
   width: 100%;
   padding: 0.6rem;
@@ -73,10 +73,21 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
+}
+
+.form .submit-btn {
   background-color: #005fcc;
 }
-.form button:hover {
+.form .submit-btn:hover {
   background-color: #1e90ff;
+}
+
+.form .delete-btn {
+  margin-top: 100px;
+  background-color: rgb(153, 2, 2);
+}
+.form .delete-btn:hover {
+  background-color: red;
 }
 
 /* Optional message */

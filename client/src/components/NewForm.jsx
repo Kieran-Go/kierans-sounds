@@ -116,7 +116,7 @@ export default function NewForm( { isSong = true, setShowNewForm }) {
                 />
 
                 {serverErr && <p className='input-error'>* {serverErr}</p>}
-                <button type="submit">Submit</button>
+                <button className='submit-btn' type="submit">SUBMIT</button>
             </form>
 
             {/* URL warning message */}
