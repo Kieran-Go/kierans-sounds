@@ -9,12 +9,14 @@ import addImg from '../assets/images/add.svg';
 import editImg from '../assets/images/edit.svg';
 import { AuthContext } from "./AuthContext";
 import NewForm from "./NewForm";
+import EditSongForm from "./EditSongForm";
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
     const { user } = useContext(AuthContext);
 
     const [activeSong, setActiveSong] = useState(null);
     const [showNewForm, setShowNewForm] = useState(false);
+    const [showEditForm, setShowEditForm] = useState(false);
 
     // Initialize using local storage or set to false if not found
     const [loopSong, setLoopSong] = useState(() => {
@@ -276,7 +278,7 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
             {user && 
             <div className="buttons-container">
                 <img src={addImg} onClick={() => setShowNewForm(true)} />
-                <img src={editImg} />
+                <img src={editImg} onClick={() => setShowEditForm(true)} />
             </div>}
 
             <p className="music-player-head">MUSIC PLAYER</p>
@@ -307,6 +309,7 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
         }
 
         {showNewForm && <NewForm setShowNewForm={setShowNewForm}/>}
+        {showEditForm && <EditSongForm songs={songs} setShowEditForm={setShowEditForm} />}
         </>
     );
 }
