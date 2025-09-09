@@ -16,11 +16,12 @@
   animation: fadeIn 0.25s ease forwards;
 }
 
+/* Form header */
 .form-overlay h3 {
     margin-top: -15px;
 }
 
-/* Centered form */
+/* Form*/
 .form {
   background-color: rgb(0, 62, 143, 0.7);
   padding: 2rem;
@@ -29,7 +30,7 @@
   width: 90%;
   max-width: 400px;
   position: relative;
-  transform: translateY(-20px);
+  transform: translatey(-20px);
   opacity: 0;
   animation: slideIn 0.3s ease forwards;
   border: solid white 3px;
@@ -74,14 +75,12 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-
 .form .submit-btn {
   background-color: #005fcc;
 }
 .form .submit-btn:hover {
   background-color: #1e90ff;
 }
-
 .form .delete-btn {
   margin-top: 20px;
   background-color: rgb(153, 2, 2);
@@ -112,6 +111,7 @@
   text-align: center;
   margin-top: 0.75rem;
   max-width: 500px;
+  line-height: 1.5em;
 }
 
 /* Songs container */
@@ -126,6 +126,7 @@
   scrollbar-width: thin;
 }
 
+/* Song name in songs-container */
 .form .songs-container p{
   text-align: left;
   padding-left: 10px;
@@ -145,7 +146,6 @@
 .form .songs-container p:last-child {
   margin-bottom: 10px;
 }
-
 .form .songs-container .selected {
   background-color: rgba(255, 128, 0, 0.7);
 }
@@ -153,6 +153,7 @@
   cursor: pointer;
 }
 
+/* Message to display after editing a song */
 .form .edit-msg {
   font-size: 0.85rem;
   color: #f2ff00;
@@ -170,5 +171,28 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Media queries */
+@media(max-width: 650px) {
+  .form {
+    max-width: 60%;
+    transform: translateY(-50%);
+  }
+
+  .url-message {
+    max-width: 70%;
+  }
+}
+
+@media(max-width: 450px) {
+  .close-img {
+    top: -60px;
+    right: -2%;
+  }
+
+  .form .songs-container p{
+    padding: 1rem;
   }
 }

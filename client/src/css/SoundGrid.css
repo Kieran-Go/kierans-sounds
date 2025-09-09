@@ -9,6 +9,7 @@
   position: relative;
 }
 
+/* Button to open the form for adding sounds */
 .sound-grid-container .add-btn {
   max-width: 30px;
   position: absolute;
@@ -23,22 +24,30 @@
   cursor: pointer;
 }
 
+/* Sound grid */
 .sound-grid{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 50px;
 }
 
+/* Sound grid cards */
 .sound-grid__card{
   background-color: rgb(0, 62, 143, 0.7);
   border: solid white 3px;
   border-radius: 20px;
-  min-height: 200px;
   color: white;
   font-family: Arial, Helvetica, sans-serif;
   position: relative;
+  padding-bottom: 1rem;
 }
 
+/* Unique sound-card border color for user-added sounds */
+.custom {
+  border-color: aqua;
+}
+
+/* Button to open the sound-edit form */
 .sound-grid__card .edit-btn {
   max-width: 20px;
   position: absolute;
@@ -53,23 +62,42 @@
   cursor: pointer;
 }
 
-.custom {
-  border-color: aqua;
-}
-
+/* The icon of the sound */
 .sound-icon{
   min-width: 60px;
   max-width: 60px;
   margin: 10px 0 0;
 }
 
-.sound-grid input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
-  appearance: none;
+/* Sound volume input */
+.sound-grid input[type="range"] {
   background-color: #5cd5eb;
-  height: 2rem;
-  width: 1rem;    
+  height: 2rem; 
+  max-width: 80%;
+  margin-bottom: 0;
  }
  .sound-grid input:hover {
   cursor: pointer;
  }
+
+ /* Media queries */
+@media(max-width: 950px) {
+.sound-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+}
+
+@media (max-width: 650px) {
+  .sound-grid-container {
+    max-width: 65%;
+  }
+  .sound-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 3rem;
+  }
+
+  .sound-grid__card {
+    width: 95%;
+  }
+}

@@ -15,7 +15,8 @@ export default function Header() {
     const { user } = useContext(AuthContext);
 
     // UI states/setters
-    const { hideMusicPlayer, setHideMusicPlayer, hideSoundGrid, setHideSoundGrid, setResetVolumes } = useUI();
+    const { hideMusicPlayer, setHideMusicPlayer, hideSoundGrid,
+         setHideSoundGrid, setResetVolumes } = useUI();
     const [nightMode, setNightMode] = useState(false);
     const [showSignupForm, setShowSignupForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
@@ -91,9 +92,11 @@ export default function Header() {
 
     return (
         <>
+        {/* Render black screen if in night mode */}
             {nightMode ? (
                 <div className="black-screen">
                     <section className="header">
+                        {/* Night-mode OFF button */}
                         <img
                             src={moonImg}
                             className="moon-btn"
@@ -103,14 +106,18 @@ export default function Header() {
                     </section>
                 </div>
             ) : ( 
+                // Header
                 <section className="header">
                     {user ? 
+                    // Render the log out button if user logged in
                         <p onClick={() => handleLogout()}>LOG OUT</p> :
                         <> 
+                        {/* Render the signup/login buttons if user not logged in */}
                             <p ref={signupBtnRef} onClick={() => setShowSignupForm(!showSignupForm)}>SIGN UP</p>
                             <p ref={loginBtnRef} onClick={() => setShowLoginForm(!showLoginForm)}>LOG IN</p>
                         </>
                     }
+                    {/* Options gear button */}
                     <img 
                         src={optionsImg} 
                         ref={optionsBtnRef} 
@@ -118,6 +125,7 @@ export default function Header() {
                         alt="Options" 
                         onClick={() => setShowOptions(!showOptions)} 
                     />
+                    {/* Night-mode ON button */}
                     <img
                         src={sunImg}
                         className="sun-btn"
@@ -127,6 +135,7 @@ export default function Header() {
                 </section>
             )}
 
+            {/* Signup and login forms */}
             {showSignupForm && 
                 <div ref={signupRef}>
                     <Signup />
@@ -138,6 +147,7 @@ export default function Header() {
                 </div>
             }
 
+            {/* Show options menu when showOptions = true */}
             {showOptions &&
                 <div className="options-menu" ref={optionsRef}>
                     <button onClick={() => setHideMusicPlayer(!hideMusicPlayer)}>
