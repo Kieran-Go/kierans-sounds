@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import '../css/Form.css';
 import closeImg from '../assets/images/close.svg';
 import { storedDataContext } from './MainPlayer';
+import { postJson } from '../util/fetchUtility';
 
 export default function NewForm({ isSong = true, setShowNewForm }) {
     // Stored data context
@@ -20,9 +21,10 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
     // Name length differs depending on type
     const maxNameLength = isSong ? 60 : 15;
 
+    // Handle submission of form
     async function handleSubmit(e) {
-        e.preventDefault();
-        setServerErr(null);
+        e.preventDefault(); // Prevent default behavior
+        setServerErr(null); // Reset server error message
 
         // Use token to verify log-in status
         const token = localStorage.getItem('token');
@@ -33,61 +35,44 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
         }
 
         // Get endpoint
-        const origin = import.meta.env.VITE_SERVER_ORIGIN;
         const endpoint = isSong ? '/songs' : '/sounds';
 
-        // Form the body
+        // Build body
         const body = isSong
             ? { name, url, ...(author ? { author } : {}) }
             : { name, url };
 
-        // Default server-side error message
-        const defaultErrMsg = "Something went wrong. Please try again";
+        // POST sound/song
         try {
-            // Add sound/song to the db
-            const res = await fetch(`${origin}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(body),
-            });
+            // Post req
+            const data = await postJson(`${endpoint}`, body, { token });
 
-            const data = await res.json();
-
-            if (res.ok) {
-                // Update storedData in context and localStorage
-                if (storedData) {
-                    const updatedData = {
-                        ...storedData,
-                        [isSong ? 'songs' : 'sounds']: [
-                            data,
-                            ...(storedData[isSong ? 'songs' : 'sounds'] || [])
-                        ]
-                    };
-                    localStorage.setItem('userData', JSON.stringify(updatedData));
-                    setStoredData(updatedData);
-                } else {
-                    // fallback to setting new data if nothing exists yet
-                    const initialData = {
-                        songs: isSong ? [data] : [],
-                        sounds: !isSong ? [data] : []
-                    };
-                    localStorage.setItem('userData', JSON.stringify(initialData));
-                    setStoredData(initialData);
-                }
-
-                // Close form
-                setShowNewForm(false);
+            // Update stored data
+            if (storedData) {
+                const updatedData = {
+                    ...storedData,
+                    [isSong ? 'songs' : 'sounds']: [
+                        data,
+                        ...(storedData[isSong ? 'songs' : 'sounds'] || [])
+                    ]
+                };
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
             } else {
-                // Show server-side error
-                alert("Error happening here")
-                setServerErr(data.error || data.message || defaultErrMsg);
+                // fallback to setting new data if nothing exists yet
+                const initialData = {
+                    songs: isSong ? [data] : [],
+                    sounds: !isSong ? [data] : []
+                };
+                localStorage.setItem('userData', JSON.stringify(initialData));
+                setStoredData(initialData);
             }
+
+            // Close form
+            setShowNewForm(false);
         }
         catch(err) {
-            setServerErr(defaultErrMsg)
+            setServerErr("Something went wrong.");
         }
     }
 

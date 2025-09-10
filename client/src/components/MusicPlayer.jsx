@@ -295,7 +295,7 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
                     <p className="song-info"><span>{activeSong.name}{activeSong.author ?
                         // Show author only if exists
                          ` — ${activeSong.author}` : ""}</span></p> :
-                         <p className="song-info">{emptyPlaylistMessage}</p>
+                         <p className="song-info"><span>Playlist is empty... add some songs!</span></p>
                 }
                 <img src={nextBtn} onClick={nextSong} className="next-btn"/>
             </div>

@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import '../css/Form.css';
 import closeImg from '../assets/images/close.svg';
 import { storedDataContext } from './MainPlayer';
+import { putJson, deleteJson } from '../util/fetchUtility';
 
 export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }) {
     // Input states
@@ -12,13 +13,9 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
     const [nameErr, setNameErr] = useState(null);
     const [urlErr, setUrlErr] = useState(null);
     const [serverErr, setServerErr] = useState(null);
-    const defaultErrMsg = "Something went wrong. Please try again";
 
     // Stored data context
     const { storedData, setStoredData } = useContext(storedDataContext);
-
-    // Origin point
-    const origin = import.meta.env.VITE_SERVER_ORIGIN;
 
     // Close the form
     const closeForm = () => {
@@ -26,38 +23,27 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
         setShowEditForm(false);
     }
 
+    // Handle form submit
     async function handleSubmit(e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default submit behavior
+        setServerErr(null); // Reset sever error message
 
-        // Reset server error message
-        setServerErr(null);
-
-        // Return if no token
+        // Use token to verify log-in status
         const token = localStorage.getItem('token');
         if(!token) {
             setServerErr("Must be logged in to edit sounds");
             return;
         }
 
-        // Build body
-        const body = { name: name, url: url };
-
-        // Get endpoint
-        const endpoint = `${origin}/sounds/${sound.id}`;
-
         // PUT to backend
         try {
-            const res = await fetch(endpoint, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(body),
-            });
+            const body = { name: name, url: url }; // Build body
+            
+            // Put request
+            await putJson(`/sounds/${sound.id}`, body, { token });
 
-            const data = await res.json();
-
-            // If response is valid, update storage to match updated data
-            if(res.ok) {
-                if (storedData && storedData.sounds) {
+            // Update stored data
+            if (storedData && storedData.sounds) {
                     // Build updated data
                     const updatedData = {
                         ...storedData,
@@ -73,76 +59,60 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
                     // Close the form
                     closeForm();
                 }
-                else {
-                    // If there is no data in local storage: reload page instead
-                    window.location.reload();
-                }
-            }
             else {
-                // Else display the server-side error
-                setServerErr(data.error || data.message || defaultErrMsg);
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
             }
         }
-        catch(err) {
-            setServerErr(defaultErrMsg);
+        catch (err) {
+            // Display the server-side error
+            setServerErr(err.data?.error || err.data?.message || "Something went wrong.");
         }
-        
     }
 
+    // Handle deletion of sound
     async function deleteSound(e) {
-        e.preventDefault();
-        // Confirm deletion
+        e.preventDefault(); // Prevent default submit behavior
+
+        // Confirm deletion with user
         const confirmDelete = window.confirm("Are you sure you want to delete this sound?");
         if (!confirmDelete) return;
 
-        // Return if no token
+        // Use token to verify log-in status
         const token = localStorage.getItem('token');
         if (!token) {
             setServerErr("Must be logged in to delete sounds");
             return;
         }
 
-        // Get endpoint
-        const endpoint = `${origin}/sounds/${sound.id}`;
-
+        // DELETE sound
         try{
-            // DELETE sound
-            const res = await fetch(endpoint, { 
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            // Delete request
+            await deleteJson(`/sounds/${sound.id}`, { token });
 
-            // Get deleted sound data from response
-            const data = await res.json();
+            // Update stored data
+            if (storedData && storedData.sounds) {
+                // Find deleted data and remove it from local storage
+                const updatedData = {
+                    ...storedData,
+                    sounds: storedData.sounds.filter(s => s.id !== sound.id)
+                };
 
-            // If response is valid, update storage to match updated data
-            if(res.ok) {
-                if (storedData && storedData.sounds) {
-                    // Find deleted data and remove it from local storage
-                    const updatedData = {
-                        ...storedData,
-                        sounds: storedData.sounds.filter(s => s.id !== sound.id)
-                    };
+                // Update both localStorage and context
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
 
-                    // Update both localStorage and context
-                    localStorage.setItem('userData', JSON.stringify(updatedData));
-                    setStoredData(updatedData);
-
-                    // Close the form
-                    closeForm();
-                }
-                else {
-                    // If there is no data in local storage: reload page instead
-                    window.location.reload();
-                }
+                // Close the form
+                closeForm();
             }
             else {
-                // Else display the server-side error
-                setServerErr(data.error || data.message || "Failed to delete");
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
             }
         }
-        catch(err) {
-            setServerErr(defaultErrMsg);
+        catch (err) {
+            // Display the server-side error
+            setServerErr(err.data?.error || err.data?.message || "Something went wrong.");
         }
     }
 

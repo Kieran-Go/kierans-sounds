@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import '../css/Form.css';
 import closeImg from '../assets/images/close.svg';
 import { storedDataContext } from './MainPlayer';
+import { putJson, deleteJson } from '../util/fetchUtility';
 
 export default function EditSongForm({ songs, setShowEditForm }) {
     // Init states
@@ -15,13 +16,9 @@ export default function EditSongForm({ songs, setShowEditForm }) {
     const [nameErr, setNameErr] = useState(null);
     const [urlErr, setUrlErr] = useState(null);
     const [serverErr, setServerErr] = useState(null);
-    const defaultErrMsg = "Something went wrong. Please try again";
 
     // Init context and server origin
     const { storedData, setStoredData } = useContext(storedDataContext);
-
-    // Orgin point
-    const origin = import.meta.env.VITE_SERVER_ORIGIN;
 
     // Default selected song to first in array
     useEffect(() => {
@@ -41,122 +38,97 @@ export default function EditSongForm({ songs, setShowEditForm }) {
         setUrlErr(null);
     },[songToEdit]);
 
+    // Handle submission of the form
     async function handleSubmit(e) {
-        e.preventDefault();
+        e.preventDefault(); // prevent default behavior
+        setServerErr(null); // Reset server error message
 
-        // Reset server error message
-        setServerErr(null);
-
-        // Return if no token
+        // Use token to verify log-in status
         const token = localStorage.getItem('token');
         if(!token) {
             setServerErr("Must be logged in to edit songs");
             return;
         }
 
-        // Build body
-        const body = { name: name, author: author ? author : null, url: url };
+        // PUT song
+        try{
+            // Build body
+            const body = { name: name, author: author ? author : null, url: url };
 
-        // Get endpoint
-        const endpoint = `${origin}/songs/${songToEdit.id}`;
+            // Put request
+            await putJson(`/songs/${songToEdit.id}`, body, { token });
 
-        // PUT to backend
-        try {
-            const res = await fetch(endpoint, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(body),
-            });
+            // Update stored data
+            if(storedData && storedData.songs) {
+                // Build updated data
+                const updatedData = {
+                    ...storedData,
+                    songs: storedData.songs.map(s => 
+                        s.id === songToEdit.id 
+                        ? { id: s.id, name, author, url }
+                        : { id: s.id, name: s.name, author: s.author, url: s.url }
+                    )
+                };
+                // Update both localStorage and context
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
 
-            const data = await res.json();
-
-            // If response is valid, update storage to match updated data
-            if(res.ok) {
-                if(storedData && storedData.songs) {
-                    // Build updated data
-                    const updatedData = {
-                        ...storedData,
-                        songs: storedData.songs.map(s => 
-                            s.id === songToEdit.id 
-                            ? { id: s.id, name, author, url }
-                            : { id: s.id, name: s.name, author: s.author, url: s.url }
-                        )
-                    };
-                    // Update both localStorage and context
-                    localStorage.setItem('userData', JSON.stringify(updatedData));
-                    setStoredData(updatedData);
-
-                    // Show confirmation to user
-                    setEditMessage(`${songToEdit.name} edited successfully!`)
-                }
-                else {
-                    // If there is no data in local storage: reload page instead
-                    window.location.reload();
-                }
+                // Show confirmation to user
+                setEditMessage(`${songToEdit.name} edited successfully!`)
             }
             else {
-                // Else display the server-side error
-                setServerErr(data.error || data.message || "Failed to edit");
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
             }
         }
-        catch(err) {
-            setServerErr(defaultErrMsg);
+        catch (err) {
+            // Display the server-side error
+            setServerErr(err.data?.error || err.data?.message || "Something went wrong.");
         }
     }
 
     async function deleteSound(e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default behavior
 
+        // Confirm deletion with user
         const confirmDelete = window.confirm("Are you sure you want to delete this song?");
         if (!confirmDelete) return;
 
-        // Get token
+        // Use token to verify log-in status
         const token = localStorage.getItem('token');
         if (!token) {
             setServerErr("Must be logged in to delete songs");
             return;
         }
 
-        // Get endpoint
-        const endpoint = `${origin}/songs/${songToEdit.id}`;
-
         // DELETE song
         try{
-            const res = await fetch(endpoint, { 
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            // Delete request
+            await deleteJson(`/songs/${songToEdit.id}`, { token })
 
-            // Get deleted sound data from response
-            const data = await res.json();
+            // Update stored data
+            if (storedData && storedData.songs) {
+                // Find deleted data and remove it from local storage
+                const updatedData = {
+                    ...storedData,
+                    songs: storedData.songs.filter(s => s.id !== songToEdit.id)
+                };
 
-            // If response is valid, update storage to match updated data
-            if(res.ok) {
-                if (storedData && storedData.songs) {
-                    // Find deleted data and remove it from local storage
-                    const updatedData = {
-                        ...storedData,
-                        songs: storedData.songs.filter(s => s.id !== songToEdit.id)
-                    };
+                // Update both localStorage and context
+                localStorage.setItem('userData', JSON.stringify(updatedData));
+                setStoredData(updatedData);
 
-                    // Update both localStorage and context
-                    localStorage.setItem('userData', JSON.stringify(updatedData));
-                    setStoredData(updatedData);
-
-                    setEditMessage(`${songToEdit.name} deleted successfully`)
-                }
-                else {
-                    // If there is no data in local storage: reload page instead
-                    window.location.reload();
-                }
+                // Display delete message to user
+                setEditMessage(`${songToEdit.name} deleted successfully`)
             }
             else {
-                // Else display the server-side error
-                setServerErr(data.error || data.message || "Failed to delete");
+                // If there is no data in local storage: reload page instead
+                window.location.reload();
             }
         }
-        catch(err) {
-            setServerErr(defaultErrMsg);
+        catch (err) {
+            // Display the server-side error
+            setServerErr(err.data?.error || err.data?.message || "Something went wrong.");
         }
     }
 
@@ -185,7 +157,7 @@ export default function EditSongForm({ songs, setShowEditForm }) {
                         ))
                     ) : (
                         // Display a message if no songs in the array
-                        <p className='empty-songs-msg'>Music player is empty...</p>
+                        <p className='empty-songs-msg'>No songs to edit...</p>
                     )}
                 </div>
 
