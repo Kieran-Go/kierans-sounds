@@ -1,3 +1,4 @@
+import Loading from './Loading';
 import Header from './Header';
 import Hero from './Hero';
 import MainPlayer from './MainPlayer';
@@ -42,10 +43,7 @@ export default function App() {
   }, [hideSoundGrid]);
 
   // Render loading component when loading
-  if(authLoading) {
-    // Replace with a loading component later
-    return <>Loading...</>
-  }
+  if(authLoading) return <Loading />
 
   return (
     <>
