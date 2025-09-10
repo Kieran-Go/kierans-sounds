@@ -1,5 +1,6 @@
 import '../css/userForm.css';
 import { useState } from 'react';
+import { postJson } from '../util/fetchUtility';
 
 export default function UserForm({ mode = "login" }) {
   // Input states
@@ -20,7 +21,7 @@ export default function UserForm({ mode = "login" }) {
 
   // Handle form submit
   async function handleSubmit(e) {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default submit behavior
     setServerError(null); // Reset server error
 
     // If in signup mode: verify the confirmation password
@@ -29,28 +30,21 @@ export default function UserForm({ mode = "login" }) {
       return;
     }
 
-    const defaultErrMsg = "Something went wrong. Please try again."
-    try {
-      // Fetch endpoint to sign up/log in
-      const res = await fetch(`${import.meta.env.VITE_SERVER_ORIGIN}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+    // Attempt signup/login with POST req
+    try{
+      // Build body
+      const body = { username, password };
+      
+      // Post request
+      const data = await postJson(endpoint, body, {});
 
-      // Response data
-      const data = await res.json();
-
-      // If response is valid: sign the user in with a token
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        window.location.reload();
-      } else {
-        // Display server-side error
-        setServerError(data.error || data.message || defaultErrMsg);
-      }
-    } catch (err) {
-      setServerError(defaultErrMsg);
+      // Store token and reload page
+      localStorage.setItem('token', data.token);
+      window.location.reload();
+    } 
+    catch (err) {
+      // Display the server-side error
+      setServerError(err.data?.error || err.data?.message || "Something went wrong.");
     }
   }
 

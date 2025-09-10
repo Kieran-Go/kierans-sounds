@@ -71,8 +71,9 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
             // Close form
             setShowNewForm(false);
         }
-        catch(err) {
-            setServerErr("Something went wrong.");
+        catch (err) {
+            // Display the server-side error
+            setServerErr(err.data?.error || err.data?.message || "Something went wrong.");
         }
     }
 
