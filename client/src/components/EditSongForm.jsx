@@ -15,6 +15,7 @@ export default function EditSongForm({ songs, setShowEditForm }) {
     const [nameErr, setNameErr] = useState(null);
     const [urlErr, setUrlErr] = useState(null);
     const [serverErr, setServerErr] = useState(null);
+    const defaultErrMsg = "Something went wrong. Please try again";
 
     // Init context and server origin
     const { storedData, setStoredData } = useContext(storedDataContext);
@@ -60,41 +61,46 @@ export default function EditSongForm({ songs, setShowEditForm }) {
         const endpoint = `${origin}/songs/${songToEdit.id}`;
 
         // PUT to backend
-        const res = await fetch(endpoint, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(body),
-        });
+        try {
+            const res = await fetch(endpoint, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(body),
+            });
 
-        const data = await res.json();
+            const data = await res.json();
 
-        // If response is valid, update storage to match updated data
-        if(res.ok) {
-            if(storedData && storedData.songs) {
-                // Build updated data
-                const updatedData = {
-                    ...storedData,
-                    songs: storedData.songs.map(s => 
-                        s.id === songToEdit.id 
-                        ? { id: s.id, name, author, url }
-                        : { id: s.id, name: s.name, author: s.author, url: s.url }
-                    )
-                };
-                // Update both localStorage and context
-                localStorage.setItem('userData', JSON.stringify(updatedData));
-                setStoredData(updatedData);
+            // If response is valid, update storage to match updated data
+            if(res.ok) {
+                if(storedData && storedData.songs) {
+                    // Build updated data
+                    const updatedData = {
+                        ...storedData,
+                        songs: storedData.songs.map(s => 
+                            s.id === songToEdit.id 
+                            ? { id: s.id, name, author, url }
+                            : { id: s.id, name: s.name, author: s.author, url: s.url }
+                        )
+                    };
+                    // Update both localStorage and context
+                    localStorage.setItem('userData', JSON.stringify(updatedData));
+                    setStoredData(updatedData);
 
-                // Show confirmation to user
-                setEditMessage(`${songToEdit.name} edited successfully!`)
+                    // Show confirmation to user
+                    setEditMessage(`${songToEdit.name} edited successfully!`)
+                }
+                else {
+                    // If there is no data in local storage: reload page instead
+                    window.location.reload();
+                }
             }
-             else {
-                // If there is no data in local storage: reload page instead
-                window.location.reload();
+            else {
+                // Else display the server-side error
+                setServerErr(data.error || data.message || "Failed to edit");
             }
         }
-        else {
-            // Else display the server-side error
-            setServerErr(data.error || data.message || "Failed to edit");
+        catch(err) {
+            setServerErr(defaultErrMsg);
         }
     }
 
@@ -115,37 +121,42 @@ export default function EditSongForm({ songs, setShowEditForm }) {
         const endpoint = `${origin}/songs/${songToEdit.id}`;
 
         // DELETE song
-        const res = await fetch(endpoint, { 
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        try{
+            const res = await fetch(endpoint, { 
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
-        // Get deleted sound data from response
-        const data = await res.json();
+            // Get deleted sound data from response
+            const data = await res.json();
 
-        // If response is valid, update storage to match updated data
-        if(res.ok) {
-            if (storedData && storedData.songs) {
-                // Find deleted data and remove it from local storage
-                const updatedData = {
-                    ...storedData,
-                    songs: storedData.songs.filter(s => s.id !== songToEdit.id)
-                };
+            // If response is valid, update storage to match updated data
+            if(res.ok) {
+                if (storedData && storedData.songs) {
+                    // Find deleted data and remove it from local storage
+                    const updatedData = {
+                        ...storedData,
+                        songs: storedData.songs.filter(s => s.id !== songToEdit.id)
+                    };
 
-                // Update both localStorage and context
-                localStorage.setItem('userData', JSON.stringify(updatedData));
-                setStoredData(updatedData);
+                    // Update both localStorage and context
+                    localStorage.setItem('userData', JSON.stringify(updatedData));
+                    setStoredData(updatedData);
 
-                setEditMessage(`${songToEdit.name} deleted successfully`)
+                    setEditMessage(`${songToEdit.name} deleted successfully`)
+                }
+                else {
+                    // If there is no data in local storage: reload page instead
+                    window.location.reload();
+                }
             }
             else {
-                // If there is no data in local storage: reload page instead
-                window.location.reload();
+                // Else display the server-side error
+                setServerErr(data.error || data.message || "Failed to delete");
             }
         }
-        else {
-            // Else display the server-side error
-            setServerErr(data.error || data.message || "Failed to delete");
+        catch(err) {
+            setServerErr(defaultErrMsg);
         }
     }
 

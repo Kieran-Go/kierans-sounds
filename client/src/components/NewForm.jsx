@@ -82,6 +82,7 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
                 setShowNewForm(false);
             } else {
                 // Show server-side error
+                alert("Error happening here")
                 setServerErr(data.error || data.message || defaultErrMsg);
             }
         }
