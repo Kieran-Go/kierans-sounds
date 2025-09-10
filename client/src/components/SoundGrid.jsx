@@ -1,16 +1,17 @@
-import { useEffect, useContext, useState } from "react";
-import getStoredSoundVolumes from "../util/getStoredSoundVolumes";
 import '../css/SoundGrid.css';
-import addImg from '../assets/images/add.svg';
-import editImg from '../assets/images/edit.svg';
-import { useUI } from "./App";
-import { AuthContext } from "./AuthContext";
 import NewForm from "./NewForm";
 import EditSoundForm from "./EditSoundForm";
+import { useEffect, useState } from "react";
+import { useUI } from "./App";
+import getStoredSoundVolumes from "../util/getStoredSoundVolumes";
+import addImg from '../assets/images/add.svg';
+import editImg from '../assets/images/edit.svg';
 
 export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
-    const { user } = useContext(AuthContext);
-    const { hideSoundGrid, resetVolumes } = useUI(); // Get ui state
+    // UI context
+    const { hideSoundGrid, resetVolumes } = useUI();
+
+    // States
     const [ showNewForm, setShowNewForm ] = useState(false);
     const [ showEditForm, setShowEditForm ] = useState(false);
     const [ soundToEdit, setSoundToEdit ] = useState(null);
@@ -99,20 +100,34 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
 
     return(
         <>
+        {/* Render sound grid if hideSoundGrid = false */}
         {!hideSoundGrid && 
+            // Container div for sound grid
             <div className="sound-grid-container">
-            {user && <img className="add-btn" src={addImg} alt="Button: Add new sound"
-                onClick={() => setShowNewForm(true)}/>}
 
+            {/* Add new sound button */}
+            <img className="add-btn" src={addImg} alt="Button: Add new sound"
+                onClick={() => setShowNewForm(true)}/>
+            
+            {/* Sound grid */}
             <div className="sound-grid">
+
+                {/* Iterate through each sound and render their sound-card to the grid */}
                 {sounds.map((sound, index) => (
+                // Add custom css class if sound is user-added
                 <div className={sound.isLocal ? "sound-grid__card" : "sound-grid__card custom"}
                     key={sound.id}>
-                    {!sound.isLocal && <img className="edit-btn" src={editImg} alt="Button: Edit sound"
-                        onClick={() => handleSoundEdit(sound)}/>}
 
+                    {/* Edit sound button */}
+                    {!sound.isLocal && <img className="edit-btn" src={editImg} alt="Button: Edit sound"
+                        onClick={() => handleSoundEdit(sound)}/>
+                    }
+
+                    {/* Icon and name of sound */}
                     <img className="sound-icon" src={sound.svg} alt={`${sound.name} icon`} />
                     <p>{sound.name}</p>
+
+                    {/* Sound volume input */}
                     <input
                         type="range"
                         min="0"
@@ -126,6 +141,8 @@ export default function SoundGrid ({ play, sounds, setSounds, masterVolume }) {
             </div>
         </div>
         }
+
+        {/* Show the new/edit sound forms */}
         {showNewForm && <NewForm isSong={false} setShowNewForm={setShowNewForm}/>}
         {showEditForm && <EditSoundForm sound={soundToEdit} setSoundToEdit={setSoundToEdit}
              setShowEditForm={setShowEditForm} />}

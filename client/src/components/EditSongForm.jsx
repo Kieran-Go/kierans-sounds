@@ -18,14 +18,18 @@ export default function EditSongForm({ songs, setShowEditForm }) {
 
     // Init context and server origin
     const { storedData, setStoredData } = useContext(storedDataContext);
+
+    // Orgin point
     const origin = import.meta.env.VITE_SERVER_ORIGIN;
 
+    // Default selected song to first in array
     useEffect(() => {
         if(songs.length > 0) {
             setSongToEdit(songs[0]);
         }
     },[]);
 
+    // Change fields when selected song is changed
     useEffect(() => {
         if(!songToEdit) return;
         setName(songToEdit.name);
@@ -45,7 +49,7 @@ export default function EditSongForm({ songs, setShowEditForm }) {
         // Return if no token
         const token = localStorage.getItem('token');
         if(!token) {
-            setServerErr("Not logged in");
+            setServerErr("Must be logged in to edit songs");
             return;
         }
 
@@ -103,7 +107,7 @@ export default function EditSongForm({ songs, setShowEditForm }) {
         // Get token
         const token = localStorage.getItem('token');
         if (!token) {
-            setServerErr("Not logged in");
+            setServerErr("Must be logged in to delete songs");
             return;
         }
 
@@ -146,26 +150,35 @@ export default function EditSongForm({ songs, setShowEditForm }) {
     }
 
     return(
+        // Form overlay
         <div className='form-overlay'>
+
+            {/* Render form elements */}
             <form className='form' onSubmit={handleSubmit}>
+                {/* Form header */}
                 <h3>EDIT SONGS</h3>
+
                 {/* Close button */}
                 <img className='close-img' src={closeImg} onClick={() => setShowEditForm(false)} />
 
                 {/* Song selection container */}
                 <div className='songs-container'>
+                    {/* Iterate through each song and add them to the container */}
                     {songs.length > 0 ? (
                         songs.map((song) => (
+                            // Add the selected css class if song is selected
                             <p key={song.id} className={song === songToEdit ? 'song selected' : 'song'}
                                 onClick={() => setSongToEdit(song)}>
                                 {song.name}
                             </p>
                         ))
                     ) : (
+                        // Display a message if no songs in the array
                         <p className='empty-songs-msg'>Music player is empty...</p>
                     )}
                 </div>
 
+                {/* Render form if songs in the array */}
                 {songs.length > 0 && (
                 <>
                     {/* Name input */}
@@ -220,9 +233,13 @@ export default function EditSongForm({ songs, setShowEditForm }) {
                         }}
                     />
 
+                    {/* Display a message after editing the song */}
                     {editMessage && <p className='edit-msg'>{editMessage}</p>}
 
+                    {/* Server-side error message */}
                     {serverErr && <p className='input-error'>* {serverErr}</p>}
+
+                    {/* Subit and delete buttons */}
                     <button className='submit-btn' type="submit">SUBMIT</button>
                     <button className='delete-btn' type='button' onClick={(e)=> deleteSound(e)}>DELETE</button>
                 </>

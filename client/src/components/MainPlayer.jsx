@@ -1,14 +1,16 @@
-import { useEffect, useState, useContext, createContext } from 'react';
-import localData from '../../data/localData';
-import useFetchData from '../hooks/useFetchData';
+import '../css/MainPlayer.css';
 import MusicPlayer from './MusicPlayer';
 import SoundGrid from './SoundGrid';
+import Loading from './Loading';
+import { useEffect, useState, useContext, createContext } from 'react';
+import { AuthContext } from './AuthContext';
+import localData from '../../data/localData';
+import useFetchData from '../hooks/useFetchData';
 import getStoredSoundVolumes from '../util/getStoredSoundVolumes';
 import playBtnImg from '../assets/images/play.svg';
 import pauseBtnImg from '../assets/images/pause.svg';
 import audioImg from '../assets/images/audio.svg';
-import { AuthContext } from './AuthContext';
-import '../css/MainPlayer.css';
+
 
 // Create context for user data in local storage
 export const storedDataContext = createContext(null);
@@ -127,7 +129,8 @@ export default function MainPlayer() {
         }
     }
 
-    if (loading) return <>Loading...</>;
+    // Render Loading/Error components if needed
+    if (loading) return <Loading />;
     if(error) throw error;
 
     return(

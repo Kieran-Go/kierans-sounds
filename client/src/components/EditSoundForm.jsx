@@ -16,8 +16,10 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
     // Stored data context
     const { storedData, setStoredData } = useContext(storedDataContext);
 
+    // Origin point
     const origin = import.meta.env.VITE_SERVER_ORIGIN;
 
+    // Close the form
     const closeForm = () => {
         setSoundToEdit(null);
         setShowEditForm(false);
@@ -32,7 +34,7 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
         // Return if no token
         const token = localStorage.getItem('token');
         if(!token) {
-            setServerErr("Not logged in");
+            setServerErr("Not logged in to edit sounds");
             return;
         }
 
@@ -89,7 +91,7 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
         // Get token
         const token = localStorage.getItem('token');
         if (!token) {
-            setServerErr("Not logged in");
+            setServerErr("Must be logged in to delete sounds");
             return;
         }
 
@@ -133,11 +135,16 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
     }
 
     return(
+        // Overlay for form
         <div className='form-overlay'>
+            {/* Render the form elements */}
             <form className='form' onSubmit={handleSubmit}>
+                {/* Form header */}
                 <h3>EDIT SOUND</h3>
+
                 {/* Close button */}
                 <img className='close-img' src={closeImg} onClick={() => closeForm()} />
+
                 {/* Name input */}
                 {nameErr && <p className='input-error'>* {nameErr}</p>}
                 <input
@@ -159,6 +166,7 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
                     setNameErr(null);
                 }}
                 />
+
                 {/* URL input */}
                 {urlErr && <p className='input-error'>* {urlErr}</p>}
                 <input
@@ -179,7 +187,10 @@ export default function EditSoundForm({ sound, setSoundToEdit, setShowEditForm }
                     }}
                 />
 
+                {/* Server-side error */}
                 {serverErr && <p className='input-error'>* {serverErr}</p>}
+
+                {/* Submit and delete buttons */}
                 <button className='submit-btn' type="submit">SUBMIT</button>
                 <button className='delete-btn' type='button' onClick={(e)=> deleteSound(e)}>DELETE</button>
             </form>

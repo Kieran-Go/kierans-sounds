@@ -1,19 +1,21 @@
-import { useContext, useEffect, useRef, useState } from "react";
 import "../css/MusicPlayer.css";
+import NewForm from "./NewForm";
+import EditSongForm from "./EditSongForm";
+import { useContext, useEffect, useRef, useState } from "react";
+import { AuthContext } from "./AuthContext";
+import { useUI } from "./App";
+import arrayShuffle from "../util/arrayShuffle";
 import nextBtn from "../assets/images/next.svg";
 import loopBtn from "../assets/images/loop.svg";
 import shuffleBtn from "../assets/images/shuffle.svg";
-import { useUI } from "./App";
-import arrayShuffle from "../util/arrayShuffle";
 import addImg from '../assets/images/add.svg';
 import editImg from '../assets/images/edit.svg';
-import { AuthContext } from "./AuthContext";
-import NewForm from "./NewForm";
-import EditSongForm from "./EditSongForm";
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
+    // Context
     const { user } = useContext(AuthContext);
 
+    // States
     const [activeSong, setActiveSong] = useState(null);
     const [showNewForm, setShowNewForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
@@ -273,30 +275,40 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
 
     return (
         <>
+        {/* Only render if hideMusicPlayer = false */}
         {!hideMusicPlayer && 
+        // Render music player elements
         <div className="music-player">
-            {user && 
+            
+            {/* // Add/edit song buttons */}
             <div className="buttons-container">
                 <img src={addImg} onClick={() => setShowNewForm(true)} />
                 <img src={editImg} onClick={() => setShowEditForm(true)} />
-            </div>}
+            </div>
 
+            {/* Head */}
             <p className="music-player-head">MUSIC PLAYER</p>
             <div>
+                {/* Controls and song info */}
                 <img src={nextBtn} onClick={prevSong} className="prev-btn"/>
                 {songs.length > 0 && activeSong ? 
-                    <p className="song-info"><span>{activeSong.name}{activeSong.author ? ` — ${activeSong.author}` : ""}</span></p>
-                    :
-                    <p className="song-info">{emptyPlaylistMessage}</p>
+                    <p className="song-info"><span>{activeSong.name}{activeSong.author ?
+                        // Show author only if exists
+                         ` — ${activeSong.author}` : ""}</span></p> :
+                         <p className="song-info">{emptyPlaylistMessage}</p>
                 }
                 <img src={nextBtn} onClick={nextSong} className="next-btn"/>
             </div>
+
+            {/* Loop/shuffle option buttons */}
             <div className="player-options">
                 <img className={loopSong ? "loop-btn active" : "loop-btn"} src={loopBtn} alt="Loop button"
                  onClick={() =>toggleLoop()}/>
                 <img className={shuffle ? "shuffle-btn active" : "shuffle-btn"} src={shuffleBtn} alt="Shuffle button"
                 onClick={() => toggleShuffle()}/>
             </div>
+
+            {/* Volume input */}
             <input
                 type="range"
                 min="0"
@@ -308,6 +320,7 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
         </div>
         }
 
+        {/* Render the forms */}
         {showNewForm && <NewForm setShowNewForm={setShowNewForm}/>}
         {showEditForm && <EditSongForm songs={songs} setShowEditForm={setShowEditForm} />}
         </>

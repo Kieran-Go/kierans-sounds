@@ -4,6 +4,9 @@ import closeImg from '../assets/images/close.svg';
 import { storedDataContext } from './MainPlayer';
 
 export default function NewForm({ isSong = true, setShowNewForm }) {
+    // Stored data context
+    const { storedData, setStoredData } = useContext(storedDataContext);
+    
     // Input states
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
@@ -14,9 +17,6 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
     const [urlErr, setUrlErr] = useState(null);
     const [serverErr, setServerErr] = useState(null);
 
-    // Stored data context
-    const { storedData, setStoredData } = useContext(storedDataContext);
-
     // Name length differs depending on type
     const maxNameLength = isSong ? 60 : 15;
 
@@ -24,10 +24,11 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
         e.preventDefault();
         setServerErr(null);
 
-        // Get token or return if none
+        // Use token to verify log-in status
         const token = localStorage.getItem('token');
         if (!token) {
-            setServerErr("Not logged in");
+            const type = isSong ? "songs" : "sounds"
+            setServerErr(`Must be logged in to add ${type}`);
             return;
         }
 
@@ -40,44 +41,52 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
             ? { name, url, ...(author ? { author } : {}) }
             : { name, url };
 
-        // Add sound/song to the db
-        const res = await fetch(`${origin}${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(body),
-        });
+        // Default server-side error message
+        const defaultErrMsg = "Something went wrong. Please try again";
+        try {
+            // Add sound/song to the db
+            const res = await fetch(`${origin}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(body),
+            });
 
-        const data = await res.json();
+            const data = await res.json();
 
-        if (res.ok) {
-            // Update storedData in context and localStorage
-            if (storedData) {
-                const updatedData = {
-                    ...storedData,
-                    [isSong ? 'songs' : 'sounds']: [
-                        data,
-                        ...(storedData[isSong ? 'songs' : 'sounds'] || [])
-                    ]
-                };
-                localStorage.setItem('userData', JSON.stringify(updatedData));
-                setStoredData(updatedData);
+            if (res.ok) {
+                // Update storedData in context and localStorage
+                if (storedData) {
+                    const updatedData = {
+                        ...storedData,
+                        [isSong ? 'songs' : 'sounds']: [
+                            data,
+                            ...(storedData[isSong ? 'songs' : 'sounds'] || [])
+                        ]
+                    };
+                    localStorage.setItem('userData', JSON.stringify(updatedData));
+                    setStoredData(updatedData);
+                } else {
+                    // fallback to setting new data if nothing exists yet
+                    const initialData = {
+                        songs: isSong ? [data] : [],
+                        sounds: !isSong ? [data] : []
+                    };
+                    localStorage.setItem('userData', JSON.stringify(initialData));
+                    setStoredData(initialData);
+                }
+
+                // Close form
+                setShowNewForm(false);
             } else {
-                // fallback to setting new data if nothing exists yet
-                const initialData = {
-                    songs: isSong ? [data] : [],
-                    sounds: !isSong ? [data] : []
-                };
-                localStorage.setItem('userData', JSON.stringify(initialData));
-                setStoredData(initialData);
+                // Show server-side error
+                setServerErr(data.error || data.message || defaultErrMsg);
             }
-
-            // Close form
-            setShowNewForm(false);
-        } else {
-            setServerErr(data.error || data.message || "Failed to add");
+        }
+        catch(err) {
+            setServerErr(defaultErrMsg)
         }
     }
 
@@ -145,8 +154,8 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
 
             {/* URL warning message */}
             <p className='url-message'>
-                Important: Please ensure the provided URL is a direct file link (such as from Google Drive or Cloudinary).
-                Regular streaming links (YouTube, Spotify, etc.) are not supported.
+                Please provide a direct audio file URL (e.g., from Cloudinary, AWS S3, or another file host). 
+                Links from streaming services such as YouTube or Spotify are not supported.
             </p>
         </div>
     )
