@@ -1,9 +1,8 @@
+import "../css/Header.css";
+import UserForm from "./UserForm";
 import { useState, useEffect, useRef, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { useUI } from "./App";
-import Signup from "./Signup";
-import Login from "./Login";
-import "../css/Header.css";
 import optionsImg from "../assets/images/options.svg";
 import sunImg from "../assets/images/sun.svg";
 import moonImg from "../assets/images/moon.svg";
@@ -138,12 +137,12 @@ export default function Header() {
             {/* Signup and login forms */}
             {showSignupForm && 
                 <div ref={signupRef}>
-                    <Signup />
+                    <UserForm mode="signup" />
                 </div>
             }
             {showLoginForm && 
                 <div ref={loginRef}>
-                    <Login />
+                    <UserForm mode="login" />
                 </div>
             }
 
