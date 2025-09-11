@@ -1,8 +1,7 @@
 import "../css/MusicPlayer.css";
 import NewForm from "./NewForm";
 import EditSongForm from "./EditSongForm";
-import { useContext, useEffect, useRef, useState } from "react";
-import { AuthContext } from "./AuthContext";
+import { useEffect, useRef, useState } from "react";
 import { useUI } from "./App";
 import arrayShuffle from "../util/arrayShuffle";
 import nextBtn from "../assets/images/next.svg";
@@ -12,8 +11,6 @@ import addImg from '../assets/images/add.svg';
 import editImg from '../assets/images/edit.svg';
 
 export default function MusicPlayer({ songs, play, masterVolume }) {
-    // Context
-    const { user } = useContext(AuthContext);
 
     // States
     const [activeSong, setActiveSong] = useState(null);
@@ -37,10 +34,6 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
 
     const musicPlayerAudio = useRef(new Audio());
     const { hideMusicPlayer, resetVolumes } = useUI(); // Get ui state
-
-    const emptyPlaylistMessage = user ? 
-        "Music player is empty... add some songs!" :
-        "Must be logged in to use music player...";
 
     // Initialize first active song
     useEffect(() => {

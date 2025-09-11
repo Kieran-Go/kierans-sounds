@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+
+<svg
+   fill="#000000"
+   width="741.00562"
+   height="736.32501"
+   viewBox="0 0 29.640225 29.453"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="fire.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.97875"
+     inkscape:cx="367.81609"
+     inkscape:cy="366.28352"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0"
+     transform="translate(-1.2792831,-1.331)" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     transform="translate(-1.2792831,-1.331)" />
+  <g
+     id="SVGRepo_iconCarrier"
+     transform="translate(-1.2792831,-1.331)">
+    <title
+       id="title1">fire</title>
+    <path
+       d="m 11.87,30.782 c 2.827,-0.004 6.12,-0.016 8.583,-0.022 6.399,-4.805 0.449,-11.341 -4.919,-10.395 4.74,3.583 0.616,9.454 -3.664,10.417 z M 23.245,6.173 c 10e-4,0.045 0,0.09 0,0.136 4.927,11.598 -8.514,11.801 -7.44,0.717 -2.601,6.269 -8.292,-0.134 -5.683,-5.695 v 0 C -1.351,7.988 13.366,15.517 9.486,22.076 7.297,25.776 2.377,20.308 2.73,14.164 -0.377,22.05 1.885,27.689 5.942,30.747 6.049,30.773 7.525,30.783 9.595,30.784 9.383,30.73 9.176,30.659 8.973,30.57 c -1.335,-0.586 -2.12,-3.808 1.822,-5.503 -0.787,4.838 8.606,0.838 1.458,-10.24 v 0 c 5.318,1.677 8.675,3.745 11.078,7.434 1.694,-1.511 2.91,-4.074 3.28,-6.596 2.713,4.869 1.466,12.355 -4.95,15.092 1.419,-0.003 2.37,-0.002 2.471,0.005 9.657,-2.17 8.694,-15.283 -0.886,-24.589 z"
+       id="path1" />
+  </g>
+</svg>
