@@ -1,10 +1,10 @@
 // Import sounds locally
-import rain from "../src/assets/sounds/rain.mp3";
-import waves from "../src/assets/sounds/waves.mp3";
-import river from "../src/assets/sounds/river.mp3";
-import wind from "../src/assets/sounds/wind.mp3";
-import birds from "../src/assets/sounds/birds.mp3";
-import fire from "../src/assets/sounds/fire.mp3";
+import rain from "../src/assets/sfx/rain.mp3";
+import waves from "../src/assets/sfx/waves.mp3";
+import river from "../src/assets/sfx/river.mp3";
+import wind from "../src/assets/sfx/wind.mp3";
+import birds from "../src/assets/sfx/birds.mp3";
+import fire from "../src/assets/sfx/fire.mp3";
 
 // Icons
 import rainSvg from "../src/assets/images/rain.svg";
