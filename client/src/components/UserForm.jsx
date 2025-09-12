@@ -49,7 +49,7 @@ export default function UserForm({ mode = "login" }) {
   }
 
   return (
-    <form className='user-form' onSubmit={handleSubmit}>
+    <form className='user-form' onSubmit={handleSubmit} role={mode === "login" ? 'login-form' : 'signup-form'}>
       {/* Username */}
       {usernameError && <p className='input-error'>* {usernameError}</p>}
       <input

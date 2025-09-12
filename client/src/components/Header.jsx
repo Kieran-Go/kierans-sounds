@@ -93,13 +93,13 @@ export default function Header() {
         <>
         {/* Render black screen if in night mode */}
             {nightMode ? (
-                <div className="black-screen">
+                <div className="black-screen" >
                     <section className="header">
                         {/* Night-mode OFF button */}
                         <img
                             src={moonImg}
                             className="moon-btn"
-                            alt="Toggle night mode"
+                            alt="Toggle night mode off"
                             onClick={() => toggleNightMode(false)}
                         />
                     </section>
@@ -128,7 +128,7 @@ export default function Header() {
                     <img
                         src={sunImg}
                         className="sun-btn"
-                        alt="Toggle night mode"
+                        alt="Toggle night mode on"
                         onClick={() => toggleNightMode(true)}
                     />
                 </section>

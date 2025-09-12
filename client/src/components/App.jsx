@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { AuthContext } from './AuthContext';
 
 // Create a new context object
-const UIContext = createContext();
+export const UIContext = createContext();
 
 // Custom hook for convenience — call useUI for components to access UI states
 export function useUI() {

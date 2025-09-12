@@ -271,7 +271,7 @@ export default function MusicPlayer({ songs, play, masterVolume }) {
         {/* Only render if hideMusicPlayer = false */}
         {!hideMusicPlayer && 
         // Render music player elements
-        <div className="music-player">
+        <div className="music-player" role="music-player">
             
             {/* // Add/edit song buttons */}
             <div className="buttons-container">
