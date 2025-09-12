@@ -140,10 +140,15 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
             </form>
 
             {/* URL warning message */}
-            <p className='url-message'>
-                Please provide a direct audio file URL (e.g., from Cloudinary, AWS S3, or another file host). 
-                Links from streaming services such as YouTube or Spotify are not supported.
+            <p className="url-message">
+                Please provide a direct audio file URL (e.g., from Buzzheavier, Cloudinary, or another file host).
+                Links from streaming services such as YouTube or Spotify are not supported.<br></br><br></br>
+                
+                I recommend{" "}
+                <a href="https://buzzheavier.com/" target='_blank'>Buzzheavier</a> because it is simple, free, 
+                and offers unlimited bandwidth.
             </p>
+
         </div>
     )
 }
