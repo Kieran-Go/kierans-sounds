@@ -11,7 +11,6 @@ import playBtnImg from '../assets/images/play.svg';
 import pauseBtnImg from '../assets/images/pause.svg';
 import audioImg from '../assets/images/audio.svg';
 
-
 // Create context for user data in local storage
 export const storedDataContext = createContext(null);
 
