@@ -141,11 +141,11 @@ export default function NewForm({ isSong = true, setShowNewForm }) {
 
             {/* URL warning message */}
             <p className="url-message">
-                Please provide a direct audio file URL (e.g., from Buzzheavier, Cloudinary, or another file host).
+                Please provide a direct audio file URL (e.g., from Catbox, Buzzheavier, Cloudinary, or another file sharing host).
                 Links from streaming services such as YouTube or Spotify are not supported.<br></br><br></br>
                 
                 I recommend{" "}
-                <a href="https://buzzheavier.com/" target='_blank'>Buzzheavier</a> because it is simple, free, 
+                <a href="https://catbox.moe/" target='_blank'>Catbox</a> because it is simple, free, has no file expiration 
                 and offers unlimited bandwidth.
             </p>
 
